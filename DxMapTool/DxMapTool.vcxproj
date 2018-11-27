@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{B123650E-AC92-402E-B966-3ED8C1D10C08}</ProjectGuid>
+    <ProjectGuid>{21907912-C2BC-4B42-A6B5-0EFCF1D19530}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
-    <RootNamespace>DxTool</RootNamespace>
+    <RootNamespace>DxMapTool</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -76,6 +76,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -91,10 +94,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -112,6 +118,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -135,6 +142,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -160,6 +168,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -179,25 +188,21 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CMenuDialog.h" />
-    <ClInclude Include="CToolView.h" />
-    <ClInclude Include="DxMainView.h" />
-    <ClInclude Include="DxTool.h" />
-    <ClInclude Include="DxToolDoc.h" />
+    <ClInclude Include="DxMapTool.h" />
+    <ClInclude Include="DxMapToolDoc.h" />
+    <ClInclude Include="DxMapToolView.h" />
+    <ClInclude Include="DxMapView.h" />
     <ClInclude Include="MainFrm.h" />
-    <ClInclude Include="MenuView.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CMenuDialog.cpp" />
-    <ClCompile Include="CToolView.cpp" />
-    <ClCompile Include="DxMainView.cpp" />
-    <ClCompile Include="DxTool.cpp" />
-    <ClCompile Include="DxToolDoc.cpp" />
+    <ClCompile Include="DxMapTool.cpp" />
+    <ClCompile Include="DxMapToolDoc.cpp" />
+    <ClCompile Include="DxMapToolView.cpp" />
+    <ClCompile Include="DxMapView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
-    <ClCompile Include="MenuView.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -206,15 +211,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="DxTool.rc" />
+    <ResourceCompile Include="DxMapTool.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\DxTool.rc2" />
+    <None Include="res\DxMapTool.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\DxTool.ico" />
-    <Image Include="res\DxToolDoc.ico" />
-    <Image Include="res\Toolbar.bmp" />
+    <Image Include="res\DxMapTool.ico" />
+    <Image Include="res\DxMapToolDoc.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

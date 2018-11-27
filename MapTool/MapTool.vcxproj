@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{B123650E-AC92-402E-B966-3ED8C1D10C08}</ProjectGuid>
+    <ProjectGuid>{CDFD23EB-553F-4373-9191-A3F171E4E38A}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
-    <RootNamespace>DxTool</RootNamespace>
+    <RootNamespace>MapTool</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -76,6 +76,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -91,6 +92,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -112,6 +114,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -135,6 +138,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -160,6 +164,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -179,25 +184,21 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CMenuDialog.h" />
-    <ClInclude Include="CToolView.h" />
-    <ClInclude Include="DxMainView.h" />
-    <ClInclude Include="DxTool.h" />
-    <ClInclude Include="DxToolDoc.h" />
     <ClInclude Include="MainFrm.h" />
-    <ClInclude Include="MenuView.h" />
+    <ClInclude Include="MapTool.h" />
+    <ClInclude Include="MapToolDoc.h" />
+    <ClInclude Include="MapToolView.h" />
+    <ClInclude Include="MapView.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CMenuDialog.cpp" />
-    <ClCompile Include="CToolView.cpp" />
-    <ClCompile Include="DxMainView.cpp" />
-    <ClCompile Include="DxTool.cpp" />
-    <ClCompile Include="DxToolDoc.cpp" />
     <ClCompile Include="MainFrm.cpp" />
-    <ClCompile Include="MenuView.cpp" />
+    <ClCompile Include="MapTool.cpp" />
+    <ClCompile Include="MapToolDoc.cpp" />
+    <ClCompile Include="MapToolView.cpp" />
+    <ClCompile Include="MapView.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -206,14 +207,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="DxTool.rc" />
+    <ResourceCompile Include="MapTool.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\DxTool.rc2" />
+    <None Include="res\MapTool.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\DxTool.ico" />
-    <Image Include="res\DxToolDoc.ico" />
+    <Image Include="res\MapTool.ico" />
+    <Image Include="res\MapToolDoc.ico" />
     <Image Include="res\Toolbar.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
