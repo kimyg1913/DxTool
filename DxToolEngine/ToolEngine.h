@@ -4,13 +4,11 @@
 #include <list>
 #include <vector>
 #include <unordered_map>
-#include <d3d11.h>
-#include <d3dcompiler.h>
+#include <d3d9.h>
+#include <d3dx9.h>
+
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
-
-#pragma comment(lib, "d3d11")
-#pragma comment(lib, "d3dcompiler")
 
 using namespace std;
 using namespace DirectX;

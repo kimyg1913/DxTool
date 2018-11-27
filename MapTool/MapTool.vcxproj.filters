@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\DX">
+      <UniqueIdentifier>{f0ff23cb-12b2-4c7d-9acd-36e59275ca26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\DX">
+      <UniqueIdentifier>{dffe0b5d-3e8d-499e-b9b5-12ba1c58c230}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MapTool.h">
@@ -39,6 +45,15 @@
     <ClInclude Include="MapView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="AplicationClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D_Core.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MapTool.cpp">
@@ -58,6 +73,12 @@
     </ClCompile>
     <ClCompile Include="MapView.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="AplicationClass.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DClass.cpp">
+      <Filter>소스 파일\DX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
