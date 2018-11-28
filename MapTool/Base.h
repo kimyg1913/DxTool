@@ -14,6 +14,10 @@
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
+#define CUSTOMFVF (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
+#define MENU_X_SIZE 256;
+
+
 using namespace std;
 
 namespace MyStruct
@@ -28,5 +32,11 @@ namespace MyStruct
 		std::vector<std::string> *textureNames;
 
 		int textureCurSel;	// Cursor Select
+	};
+
+	struct CUSTOMVERTEX
+	{
+		FLOAT x, y, z, rhw;    // from the D3DFVF_XYZRHW flag
+		DWORD color;    // from the D3DFVF_DIFFUSE flag
 	};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "D3D_Core.h"
+#include "Base.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;

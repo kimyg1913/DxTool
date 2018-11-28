@@ -188,8 +188,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AplicationClass.h" />
+    <ClInclude Include="Base.h" />
     <ClInclude Include="D3DClass.h" />
-    <ClInclude Include="D3D_Core.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MapTool.h" />
     <ClInclude Include="MapToolDoc.h" />

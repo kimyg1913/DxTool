@@ -40,20 +40,62 @@ HRESULT D3DClass::InitD3D(HWND hWnd)
 		return E_FAIL;
 	}
 
+	/// 기본컬링, CCW
+	g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+
+	/// Z버퍼기능을 켠다.
+	g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+
+
+	g_pd3dDevice->CreateVertexBuffer(3 * sizeof(MyStruct::CUSTOMVERTEX), 0,
+		CUSTOMFVF, D3DPOOL_DEFAULT, &g_pVB, NULL);
+
+	void* pVertices = nullptr;
+	g_pVB->Lock(0, 0, (void**)&pVertices, 0);
+
+	RECT rc;
+
+	GetClientRect(hWnd,&rc);
+
+	rc.right -= MENU_X_SIZE;
+
+	int xSize = 400;
+	int ySize = 400;
+
+	MyStruct::CUSTOMVERTEX v[] =
+	{
+		{rc.right/2, rc.bottom/2 - ySize/2, 1.0f, 1.0f, D3DCOLOR_XRGB(0, 0, 255),},						 //화면 중앙 위 버텍스
+		{rc.right/2 + xSize/2, rc.bottom /2 + ySize/2, 1.0f, 1.0f, D3DCOLOR_XRGB(0, 255, 0),},				//화면 오른쪽아래 버텍스
+		{rc.right/2 - xSize/2, rc.bottom /2 + ySize/2, 1.0f, 1.0f, D3DCOLOR_XRGB(255, 0, 0),},				//화면 왼쪽아래 버텍스
+	};
+
+	memcpy(pVertices, v, sizeof(v));
+
+	g_pVB->Unlock();
+
+
 	return TRUE;
 }
 
 void D3DClass::Shutdown()
 {
+	g_pVB->Release();
 	g_pd3dDevice->Release();    // close and release the 3D device
 	g_pD3D->Release();
 }
 
 void D3DClass::BeginScene(int r, int g, int b, int a)
 {
-	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(r, g, b), 1.0f, 0);
+	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
 	g_pd3dDevice->BeginScene();
+	g_pd3dDevice->SetFVF(CUSTOMFVF);
+
+	// select the vertex buffer to display
+	g_pd3dDevice->SetStreamSource(0, g_pVB, 0, sizeof(MyStruct::CUSTOMVERTEX));
+
+	// copy the vertex buffer to the back buffer
+	g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
 
 	g_pd3dDevice->EndScene();
 

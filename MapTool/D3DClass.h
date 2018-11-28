@@ -1,6 +1,6 @@
 #pragma once
 
-#include "D3D_Core.h"
+#include "Base.h"
 
 class D3DClass
 {
@@ -24,7 +24,8 @@ public:
 
 	LPDIRECT3D9             g_pD3D = NULL; // D3D 디바이스를 생성할 D3D객체변수
 	LPDIRECT3DDEVICE9       g_pd3dDevice = NULL; // 렌더링에 사용될 D3D디바이스
-
+	LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL;
+	LPDIRECT3DINDEXBUFFER9	g_pIB = NULL;
 private:
 
 };
