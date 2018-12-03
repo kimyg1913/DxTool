@@ -25,6 +25,9 @@
     <Filter Include="헤더 파일\MFC">
       <UniqueIdentifier>{d727578e-21a8-4fce-aeb9-20aa35d99f5b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="셰이더 파일">
+      <UniqueIdentifier>{6a1a3fdd-fb88-46e6-bc9a-507d3b04224c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AplicationClass.h">
@@ -60,6 +63,12 @@
     <ClInclude Include="Base.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorShaderClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AplicationClass.cpp">
@@ -86,6 +95,12 @@
     <ClCompile Include="MapView.cpp">
       <Filter>소스 파일\MFC</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorShaderClass.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MapTool.rc">
@@ -95,6 +110,9 @@
   <ItemGroup>
     <None Include="res\MapTool.rc2">
       <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Shader\ColorShader.fx">
+      <Filter>셰이더 파일</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
