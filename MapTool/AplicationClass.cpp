@@ -28,7 +28,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance,
 	if (!m_Direct3D)
 		return false; m_Direct3D;
 
-	result = m_Direct3D->InitD3D(hwnd[0]);
+	result = m_Direct3D->Initialize(hwnd[0], screenWidth, screenHeight);
 	if (!result)
 	{
 		MessageBox(hwnd[0], L"Could not initialize Direct3D.", L"Error", MB_OK);
@@ -56,11 +56,13 @@ bool ApplicationClass::Frame()
 {
 	bool result = true;
 
-	m_Direct3D->BeginScene(255, 255, 0, 0);
+	m_Direct3D->RenderBegin();
 
 	if (!result)
 		return false;
 
+
+	m_Direct3D->RenderEnd();
 
 	return true;
 }
