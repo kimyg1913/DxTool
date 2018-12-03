@@ -2,7 +2,6 @@
 #include "ColorShaderClass.h"
 
 ColorShaderClass::ColorShaderClass() :
-	m_pColorVertexShader(nullptr),
 	m_pVertexDeclaration(nullptr),
 	m_pColorPixelShader(nullptr)
 {
@@ -24,7 +23,7 @@ bool ColorShaderClass::Initialize(LPDIRECT3DDEVICE9 device, HWND hwnd)
 	return true;
 }
 
-bool ColorShaderClass::RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 world, D3DXMATRIXA16 view, D3DXMATRIXA16 proj)
+bool ColorShaderClass::RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj)
 {
 	bool result;
 
@@ -53,6 +52,12 @@ bool ColorShaderClass::RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 worl
 
 void ColorShaderClass::ShutDown()
 {
+	if (m_pVertexDeclaration)
+	{
+		m_pVertexDeclaration->Release();
+		m_pVertexDeclaration = nullptr;
+	}
+
 	if (m_pColorShader)
 	{
 		m_pColorShader->Release();
@@ -98,11 +103,11 @@ bool ColorShaderClass::InitializeShader(LPDIRECT3DDEVICE9 device, HWND hwnd, LPC
 	return true;
 }
 
-bool ColorShaderClass::SetShaderParameters(D3DXMATRIXA16 world, D3DXMATRIXA16 view, D3DXMATRIXA16 proj)
+bool ColorShaderClass::SetShaderParameters(D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj)
 {
-	m_pColorShader->SetMatrix("gWorldMatrix", &world);
-	m_pColorShader->SetMatrix("gViewMatrix", &view);
-	m_pColorShader->SetMatrix("gProjectionMatrix", &proj);
+	m_pColorShader->SetMatrix("gWorldMatrix", world);
+	m_pColorShader->SetMatrix("gViewMatrix", view);
+	m_pColorShader->SetMatrix("gProjectionMatrix", proj);
 
 	return true;
 }

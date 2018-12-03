@@ -1,5 +1,6 @@
 #pragma once
 #include "Base.h"
+#include "InputClass.h"
 
 class Camera
 {
@@ -11,10 +12,15 @@ public:
 	bool Initialize();
 	bool ShutDown();
 
+	void Frame(InputClass * input);
+
 private:
 	D3DXVECTOR3				m_vEye;		//카메라의 현재 위치
 	D3DXVECTOR3				m_vLookat;	//카메라의 시선 위치
 	D3DXVECTOR3				m_vUp;		//카메라의 상방 벡터
+
+	D3DXVECTOR3		m_vView;		/// 카메라가 향하는 단위방향벡터
+	D3DXVECTOR3		m_vCross;		/// 카마레의 측면벡터 cross( view, up )
 
 public:
 	D3DXMATRIXA16	m_matView;		/// 카메라 행렬
@@ -23,7 +29,7 @@ public:
 	D3DXMATRIXA16*	GetViewMatrix() { return &m_matView; }
 	
 	/// 카메라 행렬을 생성하기위한 기본 벡터값들을 설정한다.
-	D3DXMATRIXA16*	SetView(D3DXVECTOR3* pvEye, D3DXVECTOR3* pvLookat, D3DXVECTOR3* pvUp);
+	D3DXMATRIXA16*			SetView(D3DXVECTOR3* pvEye, D3DXVECTOR3* pvLookat, D3DXVECTOR3* pvUp);
 
 	/// 카메라의 위치값을 설정한다.
 	void			SetEye(D3DXVECTOR3* pv) { m_vEye = *pv; }

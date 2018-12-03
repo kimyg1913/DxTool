@@ -19,7 +19,9 @@ public:
 	bool Frame();
 
 private:
-	class	D3DClass *m_Direct3D;
-
-	MyStruct::TERRAIN_DESC terrainDesc;
+	class   InputClass *	m_pInput;
+	class   Camera *		m_pCamera;
+	class	D3DClass *		m_pDirect3D;
+	
+	
 };

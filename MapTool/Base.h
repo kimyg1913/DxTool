@@ -14,14 +14,16 @@
 
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
+#pragma comment (lib, "dinput8.lib")
+#pragma comment (lib, "dxguid.lib")
 
 #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE)
 #define MENU_X_SIZE 256;
 
-#define MAIN_WND_WIDTH		1280
+#define MAIN_WND_WIDTH		1600
 #define MAIN_WND_HEIGHT		1024
 
-#define DIRECT_WND_WIDTH	1024
+#define DIRECT_WND_WIDTH	1366
 #define DIRECT_WND_HEIGHT	768
 
 #define PI				3.14159265f
@@ -36,16 +38,15 @@ using namespace std;
 
 namespace MyStruct
 {
-	struct TERRAIN_DESC
+	struct TERRAINVERTEX
 	{
-		int nCell;
-		int nTile;
-		int nTexture;
+		D3DXVECTOR3 point;
+		DWORD color;
+	};
 
-		char *baseTextureName;
-		std::vector<std::string> *textureNames;
-
-		int textureCurSel;	// Cursor Select
+	struct MYINDEX
+	{
+		WORD i_0, i_1, i_2;
 	};
 
 	struct CUSTOMVERTEX
@@ -53,4 +54,5 @@ namespace MyStruct
 		FLOAT x, y, z;    // from the D3DFVF_XYZRHW flag
 		DWORD color;    // from the D3DFVF_DIFFUSE flag
 	};
+
 }

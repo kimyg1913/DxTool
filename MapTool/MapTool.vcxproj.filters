@@ -69,6 +69,18 @@
     <ClInclude Include="ColorShaderClass.h">
       <Filter>헤더 파일\DX</Filter>
     </ClInclude>
+    <ClInclude Include="ModelClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainShaderClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="InputClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AplicationClass.cpp">
@@ -99,6 +111,18 @@
       <Filter>소스 파일\DX</Filter>
     </ClCompile>
     <ClCompile Include="ColorShaderClass.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelClass.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainClass.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainShaderClass.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="InputClass.cpp">
       <Filter>소스 파일\DX</Filter>
     </ClCompile>
   </ItemGroup>
