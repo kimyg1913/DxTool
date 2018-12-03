@@ -6,6 +6,7 @@
 #include <atlconv.h>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #include <Windows.h>
 #include <d3d9.h>
