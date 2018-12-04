@@ -5,6 +5,11 @@
 
 using namespace MyStruct;
 
+struct HeightMapType
+{
+	float x, y, z;
+};
+
 class TerrainClass
 {
 public:
@@ -13,6 +18,10 @@ public:
 
 	bool Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize);
 	void ShutDown();
+
+	bool LoadHeightMap(char*);
+	void NormalizeHeightMap();
+	void ShutdownHeightMap();
 
 	bool Render(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj);
 
@@ -37,5 +46,6 @@ private:
 	LPDIRECT3DINDEXBUFFER9	m_pIB;
 	LPDIRECT3DTEXTURE9		m_pTexDiffuse;
 
+	HeightMapType* m_heightMap;
 };
 

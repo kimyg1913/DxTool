@@ -18,8 +18,8 @@ bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber
 {
 	m_iCx = xNumber;
 	m_iCz = zNumber;
-	m_vertexCount = xNumber * zNumber * 4;
-	m_indexCount = (xNumber - 1) * (zNumber - 1) * 2;
+	m_vertexCount = (xNumber-1) * (zNumber-1) * 6;
+	m_indexCount = m_vertexCount;
 	m_vfScale.x = xSize;
 	m_vfScale.z = zSize;
 
