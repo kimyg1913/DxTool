@@ -8,8 +8,10 @@ public:
 	D3DClass(const D3DClass &);
 	~D3DClass();
 
-	bool D3DClass::Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATRIXA16 * matView, bool fullscreen = false);
+	bool Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATRIXA16 * matView, bool fullscreen = false);
 	HRESULT InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATRIXA16 * matView);
+	bool InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, int xSize, int zSize);
+	
 	void Shutdown();
 
 	LPDIRECT3DDEVICE9	GetDevice() { return m_pd3dDevice; }

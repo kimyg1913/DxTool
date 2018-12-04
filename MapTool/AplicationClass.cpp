@@ -109,3 +109,12 @@ bool ApplicationClass::Frame()
 
 	return true;
 }
+
+bool ApplicationClass::InitTerrain(int xN, int zN, int xS, int zS)
+{
+	if(m_pDirect3D->InitTerrain(m_pDirect3D->GetDevice(), xN, zN, xS, zS))
+		return true;
+
+	return false;
+}
+

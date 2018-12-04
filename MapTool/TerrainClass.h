@@ -11,7 +11,7 @@ public:
 	TerrainClass();
 	~TerrainClass();
 
-	bool Initialize(LPDIRECT3DDEVICE9 device, int iCx, int iCz);
+	bool Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize);
 	void ShutDown();
 
 	bool Render(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj);
@@ -35,6 +35,7 @@ private:
 
 	LPDIRECT3DVERTEXBUFFER9 m_pVB;
 	LPDIRECT3DINDEXBUFFER9	m_pIB;
+	LPDIRECT3DTEXTURE9		m_pTexDiffuse;
 
 };
 

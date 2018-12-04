@@ -46,16 +46,6 @@ bool D3DClass::Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATR
 		return false;
 	}
 
-	m_pTerrain = new TerrainClass;
-
-	if (!m_pTerrain->Initialize(m_pd3dDevice, 256, 256))
-	{
-		m_pTerrain->ShutDown();
-		delete m_pTerrain;
-		m_pTerrain = nullptr;
-		return false;
-	}
-
 	return true;
 }
 
@@ -100,6 +90,28 @@ HRESULT D3DClass::InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATR
 	return TRUE;
 }
 
+bool D3DClass::InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, int xSize, int zSize)
+{
+	if (m_pTerrain)
+	{
+		m_pTerrain->ShutDown();
+		delete m_pTerrain;
+		m_pTerrain = nullptr;
+	}
+
+	m_pTerrain = new TerrainClass;
+
+	if (!m_pTerrain->Initialize(m_pd3dDevice, xNumber, zNumber,xSize,zSize))
+	{
+		m_pTerrain->ShutDown();
+		delete m_pTerrain;
+		m_pTerrain = nullptr;
+		return false;
+	}
+
+	return true;
+}
+
 void D3DClass::Shutdown()
 {
 	m_pd3dDevice->Release();    // close and release the 3D device
@@ -138,7 +150,9 @@ void D3DClass::RenderEnd()
 
 void D3DClass::RenderScene(int r, int g, int b, int a)
 {
-	m_pTerrain->Render(m_pd3dDevice, &m_matWorld, &m_matView, &m_matProjection);
+
+	if(m_pTerrain)
+		m_pTerrain->Render(m_pd3dDevice, &m_matWorld, &m_matView, &m_matProjection);
 
 	// copy the vertex buffer to the back buffer
 	

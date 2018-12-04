@@ -22,7 +22,7 @@ void TerrainShaderClass::ShutDown()
 }
 bool TerrainShaderClass::Initialize(LPDIRECT3DDEVICE9 device)
 {
-	if (!InitializeShader(device, L"Shader/ColorShader.fx"))
+	if (!InitializeShader(device, L"Shaders/TerrainShader.fx"))
 	{
 		return false;
 	}
@@ -30,9 +30,9 @@ bool TerrainShaderClass::Initialize(LPDIRECT3DDEVICE9 device)
 	return true;
 }
 
-bool TerrainShaderClass::RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj, int vertexSize, int indexSize)
+bool TerrainShaderClass::RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj, int vertexSize, int indexSize, LPDIRECT3DTEXTURE9 diffuseTex)
 {
-	if (!SetShaderParameters(world, view, proj))
+	if (!SetShaderParameters(world, view, proj, diffuseTex))
 	{
 		return false;
 	}
@@ -59,11 +59,12 @@ bool TerrainShaderClass::RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * 
 	return true;
 }
 
-bool TerrainShaderClass::SetShaderParameters(D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj)
+bool TerrainShaderClass::SetShaderParameters(D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj, LPDIRECT3DTEXTURE9 diffuseTex)
 {
 	m_pTerrainShader->SetMatrix("gWorldMatrix", world);
 	m_pTerrainShader->SetMatrix("gViewMatrix", view);
 	m_pTerrainShader->SetMatrix("gProjectionMatrix", proj);
+	m_pTerrainShader->SetTexture("DiffuseMap_Tex", diffuseTex);
 
 	return true;
 }
@@ -84,8 +85,11 @@ bool TerrainShaderClass::InitializeShader(LPDIRECT3DDEVICE9 device, LPCWSTR file
 
 	DWORD dwShaderFlags = 0;
 
-	D3DXCreateEffectFromFile(device, L"Shader/ColorShader.fx", NULL, NULL, dwShaderFlags, NULL,
-		&m_pTerrainShader, &pError);
+	if (FAILED(D3DXCreateEffectFromFile(device, fileName, NULL, NULL, dwShaderFlags, NULL,
+		&m_pTerrainShader, &pError)))
+	{
+		return false;
+	}
 
 
 	return true;

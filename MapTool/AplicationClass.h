@@ -17,6 +17,7 @@ public:
 	bool Initialize(HINSTANCE, HWND[], int, int);
 	void Shutdown();
 	bool Frame();
+	bool InitTerrain(int xN, int zN, int xS, int zS);
 
 private:
 	class   InputClass *	m_pInput;

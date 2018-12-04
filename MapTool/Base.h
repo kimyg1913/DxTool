@@ -18,13 +18,15 @@
 #pragma comment (lib, "dxguid.lib")
 
 #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE)
+#define TERRAINFVF (D3DFVF_XYZW | D3DFVF_TEX2)
+
 #define MENU_X_SIZE 256;
 
-#define MAIN_WND_WIDTH		1600
-#define MAIN_WND_HEIGHT		1024
+#define MAIN_WND_WIDTH		1920
+#define MAIN_WND_HEIGHT		1600
 
-#define DIRECT_WND_WIDTH	1366
-#define DIRECT_WND_HEIGHT	768
+#define DIRECT_WND_WIDTH	1600
+#define DIRECT_WND_HEIGHT	1024
 
 #define PI				3.14159265f
 #define FOV				(PI/4.0f)
@@ -32,16 +34,14 @@
 #define NEAR_PLANE		1
 #define FAL_PLANE		10000
 
-
-
 using namespace std;
 
 namespace MyStruct
 {
 	struct TERRAINVERTEX
 	{
-		D3DXVECTOR3 point;
-		DWORD color;
+		D3DXVECTOR4 point;
+		D3DXVECTOR2 texture;
 	};
 
 	struct MYINDEX

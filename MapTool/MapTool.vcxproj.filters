@@ -138,6 +138,9 @@
     <None Include="Shader\ColorShader.fx">
       <Filter>셰이더 파일</Filter>
     </None>
+    <None Include="Shaders\TerrainShader.fx">
+      <Filter>셰이더 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\MapToolDoc.ico">
