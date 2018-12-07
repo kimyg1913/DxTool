@@ -55,22 +55,22 @@ void Camera::Frame(InputClass * input)
 
 	if (input->IsWPressed())
 	{
-		MoveLocalZ(fDelta*2);
+		MoveLocalZ(fDelta*10);
 	}
 
 	if (input->IsSPressed())
 	{
-		MoveLocalZ(-fDelta * 2);
+		MoveLocalZ(-fDelta * 10);
 	}
 
 	if (input->IsAPressed())
 	{
-		MoveLocalX(-fDelta * 2);
+		MoveLocalX(-fDelta * 10);
 	}
 
 	if (input->IsDPressed())
 	{
-		MoveLocalX(fDelta * 2);
+		MoveLocalX(fDelta * 10);
 	}
 }
 

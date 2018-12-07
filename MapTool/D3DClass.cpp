@@ -112,6 +112,25 @@ bool D3DClass::InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, 
 	return true;
 }
 
+bool D3DClass::LoadHeightMap(LPCWSTR fileName)
+{
+	if (m_pTerrain)
+	{
+		m_pTerrain->ShutDown();
+		delete m_pTerrain;
+		m_pTerrain = nullptr;
+	}
+
+	m_pTerrain = new TerrainClass;
+
+	if (m_pTerrain->LoadHeightMap(m_pd3dDevice,fileName))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void D3DClass::Shutdown()
 {
 	m_pd3dDevice->Release();    // close and release the 3D device
@@ -121,11 +140,6 @@ void D3DClass::Shutdown()
 void D3DClass::RenderBegin(Camera * pCamera)
 {
 	m_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
-
-	///// 기본컬링, CCW, NONE
-	//m_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	///// Z버퍼기능을 켠다.
-	//m_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 
 	m_matView = *pCamera->GetViewMatrix();
 

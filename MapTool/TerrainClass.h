@@ -19,15 +19,15 @@ public:
 	bool Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize);
 	void ShutDown();
 
-	bool LoadHeightMap(char*);
-	void NormalizeHeightMap();
-	void ShutdownHeightMap();
+	bool LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName);
 
 	bool Render(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj);
 
 private:
 	bool InitVertex(LPDIRECT3DDEVICE9 device);
+	bool InitVertexSmallTexture(LPDIRECT3DDEVICE9 device);
 	bool InitIndex(LPDIRECT3DDEVICE9 device);
+	bool InitIndexSmallTexture(LPDIRECT3DDEVICE9 device);
 
 private:
 	int			m_iCx;	// 가로픽셀수
@@ -41,11 +41,12 @@ private:
 
 	TERRAINVERTEX * m_pTerrainVertex;//높이맵의 정점배열
 	MYINDEX		*	m_pTerrainIndex;
+	HeightMapType* m_heightMap;
+	queue<float> m_heightY;
 
 	LPDIRECT3DVERTEXBUFFER9 m_pVB;
 	LPDIRECT3DINDEXBUFFER9	m_pIB;
 	LPDIRECT3DTEXTURE9		m_pTexDiffuse;
-
-	HeightMapType* m_heightMap;
+	LPDIRECT3DTEXTURE9		m_pTexHeight;
 };
 

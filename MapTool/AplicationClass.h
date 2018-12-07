@@ -18,11 +18,12 @@ public:
 	void Shutdown();
 	bool Frame();
 	bool InitTerrain(int xN, int zN, int xS, int zS);
+	bool LoadHeightMap(LPCWSTR str);
 
 private:
 	class   InputClass *	m_pInput;
 	class   Camera *		m_pCamera;
 	class	D3DClass *		m_pDirect3D;
-	
+	class   FpsClass *		m_pFps;
 	
 };

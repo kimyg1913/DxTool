@@ -81,6 +81,9 @@
     <ClInclude Include="InputClass.h">
       <Filter>헤더 파일\DX</Filter>
     </ClInclude>
+    <ClInclude Include="FpsClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AplicationClass.cpp">
@@ -123,6 +126,9 @@
       <Filter>소스 파일\DX</Filter>
     </ClCompile>
     <ClCompile Include="InputClass.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="FpsClass.cpp">
       <Filter>소스 파일\DX</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,10 +3,10 @@
 #include "InputClass.h"
 #include "Camera.h"
 #include "D3DClass.h"
-
+#include "FpsClass.h"
 
 ApplicationClass::ApplicationClass() :
-	m_pInput(nullptr), m_pCamera(nullptr),m_pDirect3D(nullptr)
+	m_pInput(nullptr), m_pCamera(nullptr),m_pDirect3D(nullptr), m_pFps(nullptr)
 {
 }
 
@@ -18,12 +18,13 @@ ApplicationClass::~ApplicationClass()
 {
 }
 
-// hwnd[0] = DirectXView->Hwnd, hwnd[1] = MainFrm->Hwnd
 bool ApplicationClass::Initialize(HINSTANCE hinstance,
 	HWND hwnd[],
 	int screenWidth,
 	int screenHeight)
 {
+	srand((unsigned)time(0));
+
 	bool result;
 
 	m_pInput = new InputClass;
@@ -35,6 +36,11 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance,
 		MessageBox(hwnd[0], L"Could not initialize InputClass.", L"Error", MB_OK);
 		return false;
 	}
+
+	m_pFps = new FpsClass;
+
+	//fpsClass initialize
+	m_pFps->Initialize();
 
 	m_pCamera = new Camera;
 
@@ -62,6 +68,12 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance,
 
 void ApplicationClass::Shutdown()
 {
+
+	if (m_pFps)
+	{
+		delete m_pFps;
+		m_pFps = NULL;
+	}
 
 	if (m_pDirect3D)
 	{
@@ -95,6 +107,10 @@ bool ApplicationClass::Frame()
 		return false;
 	}
 
+	m_pFps->Frame();
+
+	printf("%d \n", m_pFps->GetFps());
+
 	if (m_pInput->Frame())
 	{
 		m_pCamera->Frame(m_pInput);
@@ -114,6 +130,16 @@ bool ApplicationClass::InitTerrain(int xN, int zN, int xS, int zS)
 {
 	if(m_pDirect3D->InitTerrain(m_pDirect3D->GetDevice(), xN, zN, xS, zS))
 		return true;
+
+	return false;
+}
+
+bool ApplicationClass::LoadHeightMap(LPCWSTR str)
+{
+	if (m_pDirect3D->LoadHeightMap(str))
+	{
+		return true;
+	}
 
 	return false;
 }

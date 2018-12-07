@@ -192,6 +192,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColorShaderClass.h" />
     <ClInclude Include="D3DClass.h" />
+    <ClInclude Include="FpsClass.h" />
     <ClInclude Include="InputClass.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MapTool.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="D3DClass.cpp" />
+    <ClCompile Include="FpsClass.cpp" />
     <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MapTool.cpp" />
