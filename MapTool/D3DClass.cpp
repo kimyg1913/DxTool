@@ -90,7 +90,7 @@ HRESULT D3DClass::InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATR
 	return TRUE;
 }
 
-bool D3DClass::InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, int xSize, int zSize)
+bool D3DClass::InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, int xSize, int zSize, bool isLoadMap, LPCWSTR str)
 {
 	if (m_pTerrain)
 	{
@@ -101,7 +101,7 @@ bool D3DClass::InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, 
 
 	m_pTerrain = new TerrainClass;
 
-	if (!m_pTerrain->Initialize(m_pd3dDevice, xNumber, zNumber,xSize,zSize))
+	if (!m_pTerrain->Initialize(m_pd3dDevice, xNumber, zNumber,xSize,zSize, isLoadMap, str))
 	{
 		m_pTerrain->ShutDown();
 		delete m_pTerrain;

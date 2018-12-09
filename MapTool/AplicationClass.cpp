@@ -18,10 +18,7 @@ ApplicationClass::~ApplicationClass()
 {
 }
 
-bool ApplicationClass::Initialize(HINSTANCE hinstance,
-	HWND hwnd[],
-	int screenWidth,
-	int screenHeight)
+bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd[],	int screenWidth, int screenHeight)
 {
 	srand((unsigned)time(0));
 
@@ -126,9 +123,9 @@ bool ApplicationClass::Frame()
 	return true;
 }
 
-bool ApplicationClass::InitTerrain(int xN, int zN, int xS, int zS)
+bool ApplicationClass::InitTerrain(int xN, int zN, int xS, int zS, bool isLoadMap, LPCWSTR str)
 {
-	if(m_pDirect3D->InitTerrain(m_pDirect3D->GetDevice(), xN, zN, xS, zS))
+	if(m_pDirect3D->InitTerrain(m_pDirect3D->GetDevice(), xN, zN, xS, zS, isLoadMap, str))
 		return true;
 
 	return false;

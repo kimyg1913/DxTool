@@ -10,7 +10,7 @@ public:
 
 	bool Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATRIXA16 * matView, bool fullscreen = false);
 	HRESULT InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATRIXA16 * matView);
-	bool InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, int xSize, int zSize);
+	bool InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, int xSize, int zSize, bool isLoadMap, LPCWSTR str);
 	bool LoadHeightMap(LPCWSTR fileName);
 
 	void Shutdown();

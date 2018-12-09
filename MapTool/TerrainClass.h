@@ -16,7 +16,7 @@ public:
 	TerrainClass();
 	~TerrainClass();
 
-	bool Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize);
+	bool Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize, bool isLoadMap, LPCWSTR str);
 	void ShutDown();
 
 	bool LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName);

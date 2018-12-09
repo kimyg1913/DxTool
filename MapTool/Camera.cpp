@@ -12,7 +12,7 @@ Camera::~Camera()
 
 bool Camera::Initialize()
 {
-	m_vEye = D3DXVECTOR3(0.0f, 100.0f, -100.0f);
+	m_vEye = D3DXVECTOR3(0.0f, 200.0f, -100.0f);
 	m_vLookat = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_vUp = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 
@@ -32,7 +32,7 @@ void Camera::Frame(InputClass * input)
 	int mouseXpos, mouseYpos;
 
 	POINT	pt;
-	float	fDelta = 0.2f;	// 마우스의 민감도, 이 값이 커질수록 많이 움직인다.
+	float	fDelta = 0.8f;	// 마우스의 민감도, 이 값이 커질수록 많이 움직인다.
 
 	if (input->IsMouseRightClick() && input->GetMouseWindowPosition(mouseXpos,mouseYpos))
 	{

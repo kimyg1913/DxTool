@@ -6,7 +6,7 @@ TerrainClass::TerrainClass(): m_pTerrainShader(nullptr),
 	m_pTerrainVertex(nullptr), m_pTerrainIndex(nullptr),m_pVB(nullptr), m_pIB(nullptr)
 	, m_pTexDiffuse(nullptr), m_pTexHeight(nullptr), m_heightMap(nullptr)
 {
-	m_vfScale = D3DXVECTOR3(1.f, 1.f, 1.f);
+	m_vfScale = D3DXVECTOR3(5.f, 4.f, 5.f);
 	m_vertexCount = 0;
 	m_indexCount = 0;
 	m_iCx = 0;
@@ -18,17 +18,30 @@ TerrainClass::~TerrainClass()
 {
 }
 
-bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize)
+bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize, bool isLoadMap, LPCWSTR str)
 {
 	m_iCx = xNumber;
 	m_iCz = zNumber;
 	m_vertexCount = (xNumber) * (zNumber);
 	m_indexCount = m_vertexCount*2;
-	m_vfScale.x = xSize;
-	m_vfScale.y = xSize;
-	m_vfScale.z = zSize;
+	//m_vfScale.x = xSize;
+	//m_vfScale.y = xSize;
+	//m_vfScale.z = zSize;
 
-	if (FAILED(D3DXCreateTextureFromFile(device, L"Textures/ground.tga", &m_pTexDiffuse)))
+
+	//높이맵을 불러오는 거면 높이맵을 불러온다.
+	if (isLoadMap)
+	{
+		if(!LoadHeightMap(device, str))
+			return false;
+	}
+
+	if (!InitVertexSmallTexture(device))
+	{
+		return false;
+	}
+
+	if (FAILED(D3DXCreateTextureFromFile(device, L"Textures/snow.jpg", &m_pTexDiffuse)))
 	{
 		return false;
 	}
@@ -43,10 +56,7 @@ bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber
 		return false;
 	}*/
 
-	if (!InitVertexSmallTexture(device))
-	{
-		return false;
-	}
+	
 
 	m_pTerrainShader = new TerrainShaderClass;
 
@@ -116,7 +126,7 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 	int index;
 	FILE * pFile = NULL;
 
-	fopen_s(&pFile, "Textures/map128.bmp", "rb");
+	fopen_s(&pFile, "Textures/map129.bmp", "rb");
 
 	count = fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, pFile);
 
@@ -162,16 +172,15 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 
 			height = bitmapImage[k];
 
-//			heightMapY.push((float)height);
+			m_heightMap[index].y = (float(height));
 
 			k += 3;
 		}
 		k++;
 	}
 
-	int a = 10;
 
-//	delete[] heightMap;
+	delete[] bitmapImage;
 
 	return true;
 }
@@ -226,7 +235,13 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 	
 	int index, index1, index2, index3, index4;
 
-	m_heightMap = new HeightMapType[m_iCx * m_iCz];
+	//m_heightMap = new HeightMapType[m_iCx * m_iCz];
+	
+	if (!m_heightMap)
+	{
+		m_heightMap = new HeightMapType[m_iCx * m_iCz];
+	}
+
 	m_vertexCount = (m_iCx-1) * (m_iCz-1) * 6;
 	m_indexCount = m_vertexCount / 3;
 
@@ -240,9 +255,9 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 			// Move the terrain depth into the positive range.  For example from (0, -256) to (256, 0).
 			m_heightMap[index].x = (float)(((x - m_iCx / 2) * m_vfScale.x));
 			m_heightMap[index].z = -(float)((z + 1 - m_iCz / 2) * m_vfScale.z);
-			m_heightMap[index].y = rand() % 10000;
+			//m_heightMap[index].y = rand() % 10000;
 			// Scale the height.
-			m_heightMap[index].y /= m_vfScale.y;
+			//m_heightMap[index].y /= m_vfScale.y;
 		}
 	}
 

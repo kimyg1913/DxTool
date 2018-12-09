@@ -17,7 +17,7 @@ public:
 	bool Initialize(HINSTANCE, HWND[], int, int);
 	void Shutdown();
 	bool Frame();
-	bool InitTerrain(int xN, int zN, int xS, int zS);
+	bool InitTerrain(int xN, int zN, int xS, int zS, bool isLoadMap, LPCWSTR str);
 	bool LoadHeightMap(LPCWSTR str);
 
 private:
