@@ -51,7 +51,7 @@ namespace MyStruct
 
 	struct MYINDEX
 	{
-		WORD i_0, i_1, i_2;
+		DWORD i_0, i_1, i_2;
 	};
 
 	struct CUSTOMVERTEX

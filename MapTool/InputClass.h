@@ -28,6 +28,7 @@ public:
 	bool IsAPressed();
 	bool IsSPressed();
 	bool IsDPressed();
+	bool IsNumber1Pressed();
 private:
 	bool ReadKeyboard();
 	bool ReadMouse();

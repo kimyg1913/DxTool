@@ -6,7 +6,8 @@
 
 D3DClass::D3DClass() :
 	m_pTerrain(nullptr),
-	m_pColorShader(nullptr)
+	m_pColorShader(nullptr),
+	m_bNowWireFrame(false)
 {
 	
 }
@@ -161,9 +162,18 @@ void D3DClass::RenderEnd()
 {
 }
 
+void D3DClass::ToggleWireFrame()
+{
+	m_bNowWireFrame = !m_bNowWireFrame;
+}
+
 
 void D3DClass::RenderScene(int r, int g, int b, int a)
 {
+	if(m_bNowWireFrame)
+		m_pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	else
+		m_pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
 	if(m_pTerrain)
 		m_pTerrain->Render(m_pd3dDevice, &m_matWorld, &m_matView, &m_matProjection);

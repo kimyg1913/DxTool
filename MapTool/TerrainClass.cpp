@@ -4,9 +4,9 @@
 
 TerrainClass::TerrainClass(): m_pTerrainShader(nullptr),
 	m_pTerrainVertex(nullptr), m_pTerrainIndex(nullptr),m_pVB(nullptr), m_pIB(nullptr)
-	, m_pTexDiffuse(nullptr), m_pTexHeight(nullptr), m_heightMap(nullptr)
+	, m_pTexDiffuse(nullptr), m_pTexHeight(nullptr), m_heightMap(nullptr), m_iHighestY(-1), m_iLowestY(1)
 {
-	m_vfScale = D3DXVECTOR3(5.f, 4.f, 5.f);
+	m_vfScale = D3DXVECTOR3(1.f,50.f, 1.f);
 	m_vertexCount = 0;
 	m_indexCount = 0;
 	m_iCx = 0;
@@ -148,21 +148,16 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 	m_heightMap = new HeightMapType[m_iCx * m_iCz];
 
 	// 왜 이런식이 나올까  ???
-	double dim = log(m_iCx * m_iCz);
-	int iDim = (int)dim;
-	
-	if(dim != iDim)
-		imageSize = m_iCz * ((m_iCx * 3) + 1);
-	else
-		imageSize = m_iCz * (m_iCx * 3);
+	imageSize = m_iCz * ((m_iCx * 3) + 1);
 
-	unsigned char * bitmapImage = new unsigned char[imageSize];
+	char * bitmapImage = new char[imageSize];
 
 	fseek(pFile, bitmapFileHeader.bfOffBits, SEEK_SET);
 
 	fread(bitmapImage, 1, imageSize, pFile);
 
 	int k = 0;
+	
 
 	for (int z = 0; z < 129; ++z)
 	{
@@ -172,13 +167,16 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 
 			height = bitmapImage[k];
 
-			m_heightMap[index].y = (float(height));
+			m_heightMap[index].y = (float)(height + 128);
+			m_heightMap[index].y /= 255;
 
+			m_iHighestY = m_heightMap[index].y > m_iHighestY ? m_heightMap[index].y : m_iHighestY;
+			m_iLowestY = m_heightMap[index].y < m_iLowestY ? m_heightMap[index].y : m_iLowestY;
+			
 			k += 3;
 		}
 		k++;
 	}
-
 
 	delete[] bitmapImage;
 
@@ -240,9 +238,19 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 	if (!m_heightMap)
 	{
 		m_heightMap = new HeightMapType[m_iCx * m_iCz];
+		
+		int index = 0;
+
+		for (int z = 0; z < m_iCz; z++)
+		{
+			for (int x = 0; x < m_iCx; x++)
+				m_heightMap[index++].y = 0.f;
+		}
+		
 	}
 
 	m_vertexCount = (m_iCx-1) * (m_iCz-1) * 6;
+	//m_indexCount = m_vertexCount / 3;
 	m_indexCount = m_vertexCount / 3;
 
 	for (int z = 0; z < m_iCz; z++)
@@ -254,10 +262,10 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 			// Set the X and Z coordinates.
 			// Move the terrain depth into the positive range.  For example from (0, -256) to (256, 0).
 			m_heightMap[index].x = (float)(((x - m_iCx / 2) * m_vfScale.x));
-			m_heightMap[index].z = -(float)((z + 1 - m_iCz / 2) * m_vfScale.z);
+			m_heightMap[index].z = -(float)((z - m_iCz / 2) * m_vfScale.z);
 			//m_heightMap[index].y = rand() % 10000;
 			// Scale the height.
-			//m_heightMap[index].y /= m_vfScale.y;
+			m_heightMap[index].y *= m_vfScale.y;
 		}
 	}
 
@@ -267,7 +275,7 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 		return false;
 	}
 
-	if (FAILED(device->CreateIndexBuffer(m_indexCount * sizeof(MYINDEX), 0, D3DFMT_INDEX16,
+	if (FAILED(device->CreateIndexBuffer(m_indexCount * sizeof(MYINDEX), 0, D3DFMT_INDEX32,
 		D3DPOOL_DEFAULT, &m_pIB, NULL)))
 	{
 		return false;
@@ -280,7 +288,9 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 
 	VOID* pIndices;
 
+	//MYINDEX * pi = new MYINDEX[m_indexCount];
 	MYINDEX * pi = new MYINDEX[m_indexCount];
+
 	m_pTerrainIndex = pi;
 
 	if (FAILED(m_pVB->Lock(0, m_vertexCount * sizeof(TERRAINVERTEX), &pVertices, 0)))
@@ -300,10 +310,11 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 	pi = (MYINDEX*)pIndices;
 
 	int offSet = 0;
+	index = 0;
 
-	for (int z = 0; z < m_iCz-1; ++z)
+	for (size_t z = 0; z < m_iCz-1; ++z)
 	{
-		for (int x = 0; x < m_iCx-1; ++x)
+		for (size_t x = 0; x < m_iCx-1; ++x)
 		{
 			index1 = (m_iCx * z) + x;          // Upper left.
 			index2 = (m_iCx * z) + (x + 1);      // Upper right.
@@ -364,7 +375,6 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 			v.texture.x = 1;
 			v.texture.y = 1;
 			pi->i_2 = offSet++;
-
 			*pv++ = v;
 
 			++pi;
@@ -391,7 +401,7 @@ bool TerrainClass::InitIndex(LPDIRECT3DDEVICE9 device)
 	VOID* pIndices;
 
 	MYINDEX * pi =new MYINDEX[m_indexCount];
-	m_pTerrainIndex = pi;
+	//m_pTerrainIndex = pi;
 	
 	if (FAILED(m_pIB->Lock(0, m_indexCount * sizeof(MYINDEX), &pIndices, 0)))
 	{
@@ -434,7 +444,7 @@ bool TerrainClass::InitIndexSmallTexture(LPDIRECT3DDEVICE9 device)
 	VOID* pIndices;
 
 	MYINDEX * pi = new MYINDEX[m_indexCount];
-	m_pTerrainIndex = pi;
+//	m_pTerrainIndex = pi;
 
 	if (FAILED(m_pIB->Lock(0, m_indexCount * sizeof(MYINDEX), &pIndices, 0)))
 	{
@@ -469,7 +479,7 @@ bool TerrainClass::InitIndexSmallTexture(LPDIRECT3DDEVICE9 device)
 bool TerrainClass::Render(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj)
 {
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);	
-	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	//device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	device->SetFVF(TERRAINFVF);
 	device->SetTexture(0, m_pTexDiffuse);
 	//인덱스 세팅

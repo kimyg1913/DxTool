@@ -179,6 +179,14 @@ bool InputClass::IsDPressed()
 	return false;
 }
 
+bool InputClass::IsNumber1Pressed()
+{
+	if (m_keyboardState[DIK_1] & 0x80)
+		return true;
+
+	return false;
+}
+
 void InputClass::GetMouseAddPos(int &mouseAddX, int &mouseAddY)
 {
 	mouseAddX = m_mouseX;

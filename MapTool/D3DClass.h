@@ -18,8 +18,13 @@ public:
 	LPDIRECT3DDEVICE9	GetDevice() { return m_pd3dDevice; }
 	void RenderBegin(class Camera * pCamera);
 	void RenderEnd();
+
+	void ToggleWireFrame();
+
 private:
 	void RenderScene(int r, int g, int b, int a);
+
+	bool NowIsWireFrame() { return m_bNowWireFrame; }
 
 private:
 	LPDIRECT3D9             m_pD3D = NULL; // D3D 디바이스를 생성할 D3D객체변수
@@ -33,4 +38,5 @@ private:
 	class ColorShaderClass * m_pColorShader;
 
 	float mRotationY = 0.0f;
+	bool m_bNowWireFrame;
 };
