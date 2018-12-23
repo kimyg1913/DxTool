@@ -6,7 +6,7 @@ TerrainClass::TerrainClass(): m_pTerrainShader(nullptr),
 	m_pTerrainVertex(nullptr), m_pTerrainIndex(nullptr),m_pVB(nullptr), m_pIB(nullptr)
 	, m_pTexDiffuse(nullptr), m_pTexHeight(nullptr), m_heightMap(nullptr), m_iHighestY(-1), m_iLowestY(1)
 {
-	m_vfScale = D3DXVECTOR3(1.f,50.f, 1.f);
+	m_vfScale = D3DXVECTOR3(1.f,25.f, 1.f);
 	m_vertexCount = 0;
 	m_indexCount = 0;
 	m_iCx = 0;
@@ -166,6 +166,8 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 			index = (129 * (129 - 1 - z)) + x;
 
 			height = bitmapImage[k];
+
+
 
 			m_heightMap[index].y = (float)(height + 128);
 			m_heightMap[index].y /= 255;
