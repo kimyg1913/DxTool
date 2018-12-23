@@ -148,13 +148,7 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 	m_heightMap = new HeightMapType[m_iCx * m_iCz];
 
 	// 왜 이런식이 나올까  ???
-	double dim = log(m_iCx * m_iCz);
-	int iDim = (int)dim;
-	
-	if(dim != iDim)
-		imageSize = m_iCz * ((m_iCx * 3) + 1);
-	else
-		imageSize = m_iCz * (m_iCx * 3);
+	imageSize = m_iCz * ((m_iCx * 3) + 1);
 
 	unsigned char * bitmapImage = new unsigned char[imageSize];
 
@@ -170,7 +164,13 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 		{
 			index = (129 * (129 - 1 - z)) + x;
 
+
+			assert(k < imageSize && k >= 0 && "bitmapImage k error!!!!!!!!!!!!!!!!!!");
+
 			height = bitmapImage[k];
+
+
+			assert(index < m_iCx * m_iCz && index >= 0  && "error!!!!!!!!!!!!!!!!!!" );
 
 			m_heightMap[index].y = (float(height));
 
@@ -253,8 +253,8 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 
 			// Set the X and Z coordinates.
 			// Move the terrain depth into the positive range.  For example from (0, -256) to (256, 0).
-			m_heightMap[index].x = (float)(((x - m_iCx / 2) * m_vfScale.x));
-			m_heightMap[index].z = -(float)((z + 1 - m_iCz / 2) * m_vfScale.z);
+			m_heightMap[index].x = (float)(((x - m_iCx * 0.5f) * m_vfScale.x));
+			m_heightMap[index].z = -(float)((z - m_iCz * 0.5f) * m_vfScale.z);
 			//m_heightMap[index].y = rand() % 10000;
 			// Scale the height.
 			//m_heightMap[index].y /= m_vfScale.y;
@@ -469,7 +469,7 @@ bool TerrainClass::InitIndexSmallTexture(LPDIRECT3DDEVICE9 device)
 bool TerrainClass::Render(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj)
 {
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);	
-	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	device->SetFVF(TERRAINFVF);
 	device->SetTexture(0, m_pTexDiffuse);
 	//인덱스 세팅
