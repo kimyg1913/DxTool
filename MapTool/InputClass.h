@@ -13,7 +13,7 @@ public:
 
 	bool initialze(HINSTANCE, HWND[], int, int);
 	void Shutdown();
-	bool Frame();
+	bool Update();
 
 	bool IsEscapePressed();
 	void GetMouseMove(int &X, int &Y);

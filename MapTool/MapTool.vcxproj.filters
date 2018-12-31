@@ -84,6 +84,9 @@
     <ClInclude Include="FpsClass.h">
       <Filter>헤더 파일\DX</Filter>
     </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AplicationClass.cpp">
@@ -130,6 +133,9 @@
     </ClCompile>
     <ClCompile Include="FpsClass.cpp">
       <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

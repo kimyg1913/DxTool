@@ -92,7 +92,7 @@ void InputClass::Shutdown()
 	}
 }
 
-bool InputClass::Frame()
+bool InputClass::Update()
 {
 	bool result;
 
@@ -198,6 +198,7 @@ void InputClass::GetMouseMove(int &X, int &Y)
 	X = m_mouseState.lX;
 	Y = m_mouseState.lY;
 }
+
 //return: 현재 커서와 direct단 윈도우 충돌 여부
 bool InputClass::GetMouseWindowPosition(int &x, int &y)
 {

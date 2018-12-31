@@ -12,7 +12,7 @@ public:
 	bool Initialize();
 	bool ShutDown();
 
-	void Frame(InputClass * input);
+	void Update(InputClass * input);
 
 private:
 	D3DXVECTOR3				m_vEye;		//카메라의 현재 위치
@@ -23,13 +23,13 @@ private:
 	D3DXVECTOR3		m_vCross;		/// 카마레의 측면벡터 cross( view, up )
 
 public:
-	D3DXMATRIXA16	m_matView;		/// 카메라 행렬
+	D3DXMATRIX	m_matView;		/// 카메라 행렬
 
 	/// 카메라 행렬을 얻어낸다.
-	D3DXMATRIXA16*	GetViewMatrix() { return &m_matView; }
+	D3DXMATRIX*	GetViewMatrix() { return &m_matView; }
 	
 	/// 카메라 행렬을 생성하기위한 기본 벡터값들을 설정한다.
-	D3DXMATRIXA16*			SetView(D3DXVECTOR3* pvEye, D3DXVECTOR3* pvLookat, D3DXVECTOR3* pvUp);
+	D3DXMATRIX*			SetView(D3DXVECTOR3* pvEye, D3DXVECTOR3* pvLookat, D3DXVECTOR3* pvUp);
 
 	/// 카메라의 위치값을 설정한다.
 	void			SetEye(D3DXVECTOR3* pv) { m_vEye = *pv; }
@@ -50,21 +50,21 @@ public:
 	D3DXVECTOR3*	GetUp() { return &m_vUp; }
 
 	/// 카메라 좌표계의 X축으로 angle만큼 회전한다.
-	D3DXMATRIXA16*	RotateLocalX(float angle);
+	D3DXMATRIX*	RotateLocalX(float angle);
 
 	/// 카메라 좌표계의 Y축으로 angle만큼 회전한다.
-	D3DXMATRIXA16*	RotateLocalY(float angle);
+	D3DXMATRIX*	RotateLocalY(float angle);
 
 	/// 월드좌표계의 *pv값의 위치로 이동한다.
-	D3DXMATRIXA16*	MoveTo(D3DXVECTOR3* pv);
+	D3DXMATRIX*	MoveTo(D3DXVECTOR3* pv);
 
 	/// 카메라 좌표계의 X축방향으로 dist만큼 전진한다.(후진은 -dist를 넣으면 된다.)
-	D3DXMATRIXA16*	MoveLocalX(float dist);
+	D3DXMATRIX*	MoveLocalX(float dist);
 
 	/// 카메라 좌표계의 Y축방향으로 dist만큼 전진한다.(후진은 -dist를 넣으면 된다.)
-	D3DXMATRIXA16*	MoveLocalY(float dist);
+	D3DXMATRIX*	MoveLocalY(float dist);
 
 	/// 카메라 좌표계의 Z축방향으로 dist만큼 전진한다.(후진은 -dist를 넣으면 된다.)
-	D3DXMATRIXA16*	MoveLocalZ(float dist);
+	D3DXMATRIX*	MoveLocalZ(float dist);
 };
 

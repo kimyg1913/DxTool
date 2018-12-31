@@ -23,7 +23,7 @@ bool ColorShaderClass::Initialize(LPDIRECT3DDEVICE9 device, HWND hwnd)
 	return true;
 }
 
-bool ColorShaderClass::RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj)
+bool ColorShaderClass::RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj)
 {
 	bool result;
 
@@ -103,7 +103,7 @@ bool ColorShaderClass::InitializeShader(LPDIRECT3DDEVICE9 device, HWND hwnd, LPC
 	return true;
 }
 
-bool ColorShaderClass::SetShaderParameters(D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj)
+bool ColorShaderClass::SetShaderParameters(D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj)
 {
 	m_pColorShader->SetMatrix("gWorldMatrix", world);
 	m_pColorShader->SetMatrix("gViewMatrix", view);

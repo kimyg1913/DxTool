@@ -30,12 +30,14 @@ D3DClass::~D3DClass()
 	}
 }
 
-bool D3DClass::Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATRIXA16 * matView, bool fullscreen)
+bool D3DClass::Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATRIX * matView, bool fullscreen)
 {
 	if (FAILED(InitD3D(hwnd, screenWidth, screenHeight, matView)))
 	{
 		return false;
 	}
+
+	m_hWnd = hwnd;
 
 	m_pColorShader = new ColorShaderClass;
 
@@ -50,7 +52,7 @@ bool D3DClass::Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATR
 	return true;
 }
 
-HRESULT D3DClass::InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATRIXA16 * matView)
+HRESULT D3DClass::InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATRIX * matView)
 {
 	// 디바이스를 생성하기위한 D3D객체 생성
 	if (NULL == (m_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
@@ -180,6 +182,26 @@ void D3DClass::RenderScene(int r, int g, int b, int a)
 
 	// copy the vertex buffer to the back buffer
 	
+}
+
+void D3DClass::Picking()
+{
+
+	if (m_pTerrain)
+	{
+		if (m_pTerrain->Picking(m_pd3dDevice, m_hWnd, &m_matWorld, &m_matView, &m_matProjection))
+		{
+			//ToggleWireFrame();
+		}
+	}
+}
+
+void D3DClass::SetBrush(int radius, float strength)
+{
+	if (m_pTerrain)
+	{
+		m_pTerrain->SetBrush(radius, strength);
+	}
 }
 
 

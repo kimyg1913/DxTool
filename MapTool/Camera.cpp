@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Camera.h"
+#include "Time.h"
 
 Camera::Camera()
 {
@@ -12,9 +13,11 @@ Camera::~Camera()
 
 bool Camera::Initialize()
 {
-	m_vEye = D3DXVECTOR3(0.0f, 200.0f, -100.0f);
+	m_vEye = D3DXVECTOR3(0.0f, 100.0f, -200.0f);
 	m_vLookat = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_vUp = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+
+	D3DXMatrixLookAtLH(&m_matView, &m_vEye, &m_vLookat, &m_vUp);
 
 	SetView(&m_vEye, &m_vLookat, &m_vUp);
 	return true;
@@ -25,14 +28,14 @@ bool Camera::ShutDown()
 	return true;
 }
 
-void Camera::Frame(InputClass * input)
+void Camera::Update(InputClass * input)
 {
 	bool isKeyDown;
 	int mouseMoveX, mouseMoveY;
 	int mouseXpos, mouseYpos;
 
 	POINT	pt;
-	float	fDelta = 0.8f;	// 마우스의 민감도, 이 값이 커질수록 많이 움직인다.
+	float	fDelta = Time::getInstance()->getTick();	// 마우스의 민감도, 이 값이 커질수록 많이 움직인다.
 
 	if (input->IsMouseRightClick() && input->GetMouseWindowPosition(mouseXpos,mouseYpos))
 	{
@@ -40,14 +43,14 @@ void Camera::Frame(InputClass * input)
 		float yAngle=0.f, xAngle=0.f;
 
 		if (mouseMoveX > 0)
-			yAngle += mouseMoveX * 0.016 * fDelta;
+			yAngle += fDelta;
 		else if (mouseMoveX < 0)
-			yAngle += mouseMoveX * 0.016 * fDelta;
+			yAngle -= fDelta;
 
 		if (mouseMoveY > 0)
-			xAngle += mouseMoveY * 0.016 * fDelta;
+			xAngle += fDelta;
 		else if (mouseMoveY < 0)
-			xAngle += mouseMoveY * 0.016 * fDelta;
+			xAngle -= fDelta;
 
 		RotateLocalX(xAngle);
 		RotateLocalY(yAngle);
@@ -55,26 +58,26 @@ void Camera::Frame(InputClass * input)
 
 	if (input->IsWPressed())
 	{
-		MoveLocalZ(fDelta*10);
+		MoveLocalZ(fDelta*30);
 	}
 
 	if (input->IsSPressed())
 	{
-		MoveLocalZ(-fDelta * 10);
+		MoveLocalZ(-fDelta * 30);
 	}
 
 	if (input->IsAPressed())
 	{
-		MoveLocalX(-fDelta * 10);
+		MoveLocalX(-fDelta * 30);
 	}
 
 	if (input->IsDPressed())
 	{
-		MoveLocalX(fDelta * 10);
+		MoveLocalX(fDelta * 30);
 	}
 }
 
-D3DXMATRIXA16* Camera::SetView(D3DXVECTOR3 * pvEye, D3DXVECTOR3 * pvLookat, D3DXVECTOR3 * pvUp)
+D3DXMATRIX* Camera::SetView(D3DXVECTOR3 * pvEye, D3DXVECTOR3 * pvLookat, D3DXVECTOR3 * pvUp)
 {
 	m_vEye =	*pvEye;
 	m_vLookat = *pvLookat;
@@ -88,9 +91,9 @@ D3DXMATRIXA16* Camera::SetView(D3DXVECTOR3 * pvEye, D3DXVECTOR3 * pvLookat, D3DX
 	return nullptr;
 }
 
-D3DXMATRIXA16 * Camera::RotateLocalX(float angle)
+D3DXMATRIX * Camera::RotateLocalX(float angle)
 {
-	D3DXMATRIXA16 matRot;
+	D3DXMATRIX matRot;
 	D3DXMatrixRotationAxis(&matRot, &m_vCross, angle);
 
 	D3DXVECTOR3 vNewDst, vNewUp;
@@ -102,9 +105,9 @@ D3DXMATRIXA16 * Camera::RotateLocalX(float angle)
 	return SetView(&m_vEye, &vNewDst, &m_vUp);
 }
 
-D3DXMATRIXA16 * Camera::RotateLocalY(float angle)
+D3DXMATRIX * Camera::RotateLocalY(float angle)
 {
-	D3DXMATRIXA16 matRot;
+	D3DXMATRIX matRot;
 	D3DXMatrixRotationAxis(&matRot, &m_vUp, angle);
 
 	D3DXVECTOR3 vNewDst;
@@ -114,14 +117,14 @@ D3DXMATRIXA16 * Camera::RotateLocalY(float angle)
 	return SetView(&m_vEye, &vNewDst, &m_vUp);
 }
 
-D3DXMATRIXA16 * Camera::MoveTo(D3DXVECTOR3 * pv)
+D3DXMATRIX * Camera::MoveTo(D3DXVECTOR3 * pv)
 {
 	m_vEye += *pv;
 
 	return nullptr;
 }
 
-D3DXMATRIXA16 * Camera::MoveLocalX(float dist)
+D3DXMATRIX * Camera::MoveLocalX(float dist)
 {
 	D3DXVECTOR3 vNewEye = m_vEye;
 	D3DXVECTOR3 vNewDst = m_vLookat;
@@ -135,7 +138,7 @@ D3DXMATRIXA16 * Camera::MoveLocalX(float dist)
 	return SetView(&vNewEye, &vNewDst, &m_vUp);
 }
 
-D3DXMATRIXA16 * Camera::MoveLocalY(float dist)
+D3DXMATRIX * Camera::MoveLocalY(float dist)
 {
 	D3DXVECTOR3 vNewEye = m_vEye;
 	D3DXVECTOR3 vNewDst = m_vLookat;
@@ -149,7 +152,7 @@ D3DXMATRIXA16 * Camera::MoveLocalY(float dist)
 	return SetView(&vNewEye, &vNewDst, &m_vUp);
 }
 
-D3DXMATRIXA16 * Camera::MoveLocalZ(float dist)
+D3DXMATRIX * Camera::MoveLocalZ(float dist)
 {
 	D3DXVECTOR3 vNewEye = m_vEye;
 	D3DXVECTOR3 vNewDst = m_vLookat;

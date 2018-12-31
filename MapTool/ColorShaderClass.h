@@ -9,9 +9,9 @@ public:
 	~ColorShaderClass();
 
 	bool Initialize(LPDIRECT3DDEVICE9 device, HWND hwnd);
-	bool RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj);
+	bool RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj);
 	
-	bool SetShaderParameters(D3DXMATRIXA16 *world, D3DXMATRIXA16 *view, D3DXMATRIXA16 *proj);
+	bool SetShaderParameters(D3DXMATRIX *world, D3DXMATRIX *view, D3DXMATRIX *proj);
 	void ShutDown();
 
 private:

@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "D3DClass.h"
 #include "FpsClass.h"
+#include "Time.h"
 
 ApplicationClass::ApplicationClass() :
 	m_pInput(nullptr), m_pCamera(nullptr),m_pDirect3D(nullptr), m_pFps(nullptr)
@@ -95,8 +96,11 @@ void ApplicationClass::Shutdown()
 
 }
 
-bool ApplicationClass::Frame()
+bool ApplicationClass::Update()
 {
+
+	Time::getInstance()->update();
+
 	bool result = true;
 
 	if (m_pInput->IsEscapePressed())
@@ -104,16 +108,22 @@ bool ApplicationClass::Frame()
 		return false;
 	}
 
-	m_pFps->Frame();
+	m_pFps->Update();
 
-	printf("%d \n", m_pFps->GetFps());
 
-	if (m_pInput->Frame())
+	if (m_pInput->Update())
 	{
-		m_pCamera->Frame(m_pInput);
+		m_pCamera->Update(m_pInput);
 
 		if (m_pInput->IsNumber1Pressed())
 			m_pDirect3D->ToggleWireFrame();
+
+		int temp, temp1;
+
+		if (m_pInput->IsMouseLeftClick() && m_pInput->GetMouseWindowPosition(temp, temp1))
+		{
+			m_pDirect3D->Picking();
+		}
 	}
 
 	m_pDirect3D->RenderBegin(m_pCamera);
@@ -142,5 +152,13 @@ bool ApplicationClass::LoadHeightMap(LPCWSTR str)
 	}
 
 	return false;
+}
+
+void ApplicationClass::SetBrush(int radius, float strength)
+{
+	if (m_pDirect3D)
+	{
+		m_pDirect3D->SetBrush(radius, strength);
+	}
 }
 

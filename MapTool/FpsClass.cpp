@@ -19,7 +19,7 @@ void FpsClass::Initialize()
 	return;
 }
 
-void FpsClass::Frame()
+void FpsClass::Update()
 {
 	m_count++;
 

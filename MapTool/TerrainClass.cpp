@@ -2,11 +2,11 @@
 #include "TerrainClass.h"
 
 
-TerrainClass::TerrainClass(): m_pTerrainShader(nullptr),
-	m_pTerrainVertex(nullptr), m_pTerrainIndex(nullptr),m_pVB(nullptr), m_pIB(nullptr)
-	, m_pTexDiffuse(nullptr), m_pTexHeight(nullptr), m_heightMap(nullptr), m_iHighestY(-1), m_iLowestY(1)
+TerrainClass::TerrainClass() : m_pTerrainShader(nullptr),
+m_pTerrainVertex(nullptr), m_pTerrainIndex(nullptr), m_pVB(nullptr), m_pIB(nullptr)
+, m_pTexDiffuse(nullptr), m_pTexHeight(nullptr), m_heightMap(nullptr), m_iHighestY(-1), m_iLowestY(1)
 {
-	m_vfScale = D3DXVECTOR3(1.f,25.f, 1.f);
+	m_vfScale = D3DXVECTOR3(1.f,1.f, 1.f);
 	m_vertexCount = 0;
 	m_indexCount = 0;
 	m_iCx = 0;
@@ -23,11 +23,8 @@ bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber
 	m_iCx = xNumber;
 	m_iCz = zNumber;
 	m_vertexCount = (xNumber) * (zNumber);
-	m_indexCount = m_vertexCount*2;
-	//m_vfScale.x = xSize;
-	//m_vfScale.y = xSize;
-	//m_vfScale.z = zSize;
-
+	m_indexCount = ((xNumber-1) * (zNumber-1)) * 2;
+	m_iXIndexCount = m_indexCount / (zNumber - 1);
 
 	//높이맵을 불러오는 거면 높이맵을 불러온다.
 	if (isLoadMap)
@@ -36,12 +33,27 @@ bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber
 			return false;
 	}
 
-	if (!InitVertexSmallTexture(device))
+	/*if (!InitVertexSmallTexture(device))
+	{
+		return false;
+	}*/
+
+	if (!InitVertex(device))
 	{
 		return false;
 	}
 
-	if (FAILED(D3DXCreateTextureFromFile(device, L"Textures/snow.jpg", &m_pTexDiffuse)))
+	if (!InitIndex(device))
+	{
+		return false;
+	}
+
+	if (FAILED(D3DXCreateTextureFromFile(device, L"Textures/ground.tga", &m_pTexDiffuse)))
+	{
+		return false;
+	}
+
+	if (FAILED(D3DXCreateTextureFromFile(device, L"Textures/snow.jpg", &m_pTexDiffuse2)))
 	{
 		return false;
 	}
@@ -81,6 +93,11 @@ void TerrainClass::ShutDown()
 	{
 		m_pTexDiffuse->Release();
 		m_pTexDiffuse = nullptr;
+	}
+	if (m_pTexDiffuse2)
+	{
+		m_pTexDiffuse2->Release();
+		m_pTexDiffuse2 = nullptr;
 	}
 
 	if (m_pTerrainVertex)
@@ -122,72 +139,52 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 	int imageSize;
 	BITMAPFILEHEADER bitmapFileHeader;
 	BITMAPINFOHEADER  bitmapInfoHeader;
-	char height;
-	int index;
+	float height;
 	FILE * pFile = NULL;
 
-	fopen_s(&pFile, "Textures/map129.bmp", "rb");
 
-	count = fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, pFile);
+	if (FAILED(D3DXCreateTextureFromFileEx(device, L"Textures/map128.bmp",
+		D3DX_DEFAULT, D3DX_DEFAULT,
+		D3DX_DEFAULT, 0,
+		D3DFMT_X8R8G8B8, D3DPOOL_MANAGED,
+		D3DX_DEFAULT, D3DX_DEFAULT, 0,
+		NULL, NULL, &m_pTexHeight)))
+		return E_FAIL;
 
-	if (count != 1)
-	{
-		return false;
-	}
+	D3DSURFACE_DESC		ddsd;
+	D3DLOCKED_RECT		d3drc;
 
-	count = fread(&bitmapInfoHeader, sizeof(BITMAPINFOHEADER), 1, pFile);
-
-	if (count != 1)
-	{
-		return false;
-	}
-
-	m_iCx = bitmapInfoHeader.biWidth;
-	m_iCz = bitmapInfoHeader.biHeight;
+	m_pTexHeight->GetLevelDesc(0, &ddsd);	/// 텍스처의 정보
+	m_iCx = ddsd.Width;				/// 텍스처의 가로크기
+	m_iCz = ddsd.Height;				/// 텍스처의 세로크기
+	
 
 	m_heightMap = new HeightMapType[m_iCx * m_iCz];
 
-	// 왜 이런식이 나올까  ???
-	imageSize = m_iCz * ((m_iCx * 3) + 1);
-
-	char * bitmapImage = new char[imageSize];
-
-	fseek(pFile, bitmapFileHeader.bfOffBits, SEEK_SET);
-
-	fread(bitmapImage, 1, imageSize, pFile);
-
 	int k = 0;
-	
 
-	for (int z = 0; z < 129; ++z)
+	int index = 0;
+
+	m_pTexHeight->LockRect(0, &d3drc, NULL, D3DLOCK_READONLY);
+
+	for (int z = 0; z < m_iCz; ++z)
 	{
-		for (int x = 0; x < 129; ++x)
+		for (int x = 0; x < m_iCx; ++x)
 		{
-			index = (129 * (129 - 1 - z)) + x;
-
-
-			assert(k < imageSize && k >= 0 && "bitmapImage k error!!!!!!!!!!!!!!!!!!");
-
-			height = bitmapImage[k];
-
+		
+			height = ((float)(*((LPDWORD)d3drc.pBits + x + z * (d3drc.Pitch / 4)) & 0x000000ff));// / 10.0f;
 
 			assert(index < m_iCx * m_iCz && index >= 0  && "error!!!!!!!!!!!!!!!!!!" );
 
-			m_heightMap[index].y = (float(height));
-
-
-			m_heightMap[index].y = (float)(height + 128);
-			m_heightMap[index].y /= 255;
-
+			m_heightMap[index].y = height;
 			m_iHighestY = m_heightMap[index].y > m_iHighestY ? m_heightMap[index].y : m_iHighestY;
 			m_iLowestY = m_heightMap[index].y < m_iLowestY ? m_heightMap[index].y : m_iLowestY;
-			
-			k += 3;
+		
+			++index;
 		}
-		k++;
 	}
 
-	delete[] bitmapImage;
+	m_pTexHeight->UnlockRect(0);
 
 	return true;
 }
@@ -212,6 +209,20 @@ bool TerrainClass::InitVertex(LPDIRECT3DDEVICE9 device)
 		return false;
 	}
 
+	if (!m_heightMap)
+	{
+		m_heightMap = new HeightMapType[m_iCx * m_iCz];
+
+		int index = 0;
+
+		for (int z = 0; z < m_iCz; z++)
+		{
+			for (int x = 0; x < m_iCx; x++)
+				m_heightMap[index++].y = 0.f;
+		}
+
+	}
+
 	TERRAINVERTEX v;	
 	pv = (TERRAINVERTEX *)pVertices;
 	int offSet = 0;
@@ -220,10 +231,10 @@ bool TerrainClass::InitVertex(LPDIRECT3DDEVICE9 device)
 	{
 		for (int x = 0; x < m_iCx; ++x)
 		{
-			v.point.x = (float)((x - m_iCx / 2) * m_vfScale.x);
-			v.point.z = -(float)((z - m_iCz / 2) * m_vfScale.z);
-			v.point.y = 0.0f;
-
+			v.point.x = (float)((x - m_iCx * 0.5f) * m_vfScale.x);
+			v.point.z = -(float)((z - m_iCz * 0.5f) * m_vfScale.z);
+		//	v.point.y = m_heightMap[z * m_iCx + x].y;
+			v.point.y = 0.f;
 			v.texture.x = (float)x / (m_iCx-1);
 			v.texture.y = (float)z / (m_iCz-1);
 			*pv++ = v;
@@ -262,6 +273,8 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 	//m_indexCount = m_vertexCount / 3;
 	m_indexCount = m_vertexCount / 3;
 
+	m_iXIndexCount = 2 * (m_iCx - 1);
+
 	for (int z = 0; z < m_iCz; z++)
 	{
 		for (int x = 0; x < m_iCx; x++)
@@ -270,8 +283,8 @@ bool TerrainClass::InitVertexSmallTexture(LPDIRECT3DDEVICE9 device)
 
 			// Set the X and Z coordinates.
 			// Move the terrain depth into the positive range.  For example from (0, -256) to (256, 0).
-			m_heightMap[index].x = (float)(((x - m_iCx * 0.5f) * m_vfScale.x));
-			m_heightMap[index].z = -(float)((z - m_iCz * 0.5f) * m_vfScale.z);
+			m_heightMap[index].x = (float)(((x - m_iCx * 0.5f) * m_vfScale.x)) * 2.0f;
+			m_heightMap[index].z = -(float)((z - m_iCz * 0.5f) * m_vfScale.z) * 2.0f;
 			//m_heightMap[index].y = rand() % 10000;
 			// Scale the height.
 			m_heightMap[index].y *= m_vfScale.y;
@@ -401,7 +414,7 @@ bool TerrainClass::InitIndex(LPDIRECT3DDEVICE9 device)
 {
 	//m_pTerrainIndex = new MYINDEX[m_indexCount];
 
-	if (FAILED(device->CreateIndexBuffer(m_indexCount * sizeof(MYINDEX), 0, D3DFMT_INDEX16,
+	if (FAILED(device->CreateIndexBuffer(m_indexCount * sizeof(MYINDEX), 0, D3DFMT_INDEX32,
 		D3DPOOL_DEFAULT, &m_pIB, NULL)))
 	{
 		return false;
@@ -485,12 +498,143 @@ bool TerrainClass::InitIndexSmallTexture(LPDIRECT3DDEVICE9 device)
 	return true;
 }
 
-bool TerrainClass::Render(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj)
+bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * matWorld, D3DXMATRIX * matView, D3DXMATRIX * matProj)
+{
+	D3DVIEWPORT9 ViewPortInfo;
+	D3DXVECTOR3 v;  //클릭한 점에 해당하는 직선
+	D3DXVECTOR3 rayOrigin; //광선 위치
+	D3DXVECTOR3 rayDir; //광선 방향
+
+	D3DXMATRIX matWorldView;
+	D3DXMATRIX m;
+
+	float Strength = m_fBaseStrength;
+
+	device->GetViewport(&ViewPortInfo);
+
+	POINT pt;
+
+	GetCursorPos(&pt);
+	ScreenToClient(hwnd, &pt);
+
+	//printf("%d, %d \n", pt.x, pt.y);
+	v.x = ((pt.x - ViewPortInfo.X) * 2.0f / ViewPortInfo.Width - 1.0f) / matProj->_11;
+	v.y = -((pt.y - ViewPortInfo.Y) * 2.0f / ViewPortInfo.Height - 1.0f) / matProj->_22;
+	v.z = 1.0f;
+	
+	matWorldView = *(matWorld) * *(matView);
+
+	D3DXMatrixInverse(&m, NULL, &matWorldView);
+
+	rayDir.x = v.x * m._11 + v.y * m._21 + v.z * m._31;
+	rayDir.y = v.x * m._12 + v.y * m._22 + v.z * m._32;
+	rayDir.z = v.x * m._13 + v.y * m._23 + v.z * m._33;
+
+	rayOrigin.x = m._41;
+	rayOrigin.y = m._42;
+	rayOrigin.z = m._43;
+
+	TERRAINVERTEX * pVertices;
+	MYINDEX * pIndices;
+
+	m_pVB->Lock(0, 0, (void**)&pVertices, 0);
+	m_pIB->Lock(0, 0, (void**)&pIndices, 0);
+
+	for (int i = 0; i < m_indexCount; ++i)
+	{
+		D3DXVECTOR3 v0 = D3DXVECTOR3(pVertices[pIndices[i].i_0].point);
+		D3DXVECTOR3 v1 = D3DXVECTOR3(pVertices[pIndices[i].i_1].point);
+		D3DXVECTOR3 v2 = D3DXVECTOR3(pVertices[pIndices[i].i_2].point);
+
+		float d, u, v;
+
+		bool isPicked = D3DXIntersectTri(&v0, &v1, &v2, &rayOrigin, &rayDir, &u, &v, &d);
+
+		if (isPicked)
+		{
+			D3DXVECTOR3 tempVec = v0 + u * (v1 - v0) + v*(v2 - v0);
+
+			m_vPickedIndex.clear();
+
+			//아래위 삼각형
+			if (i % 2 != 0)
+				i -= 1;
+
+			int leftTopIndex = pIndices[i].i_0;
+			int rightTopIndex = pIndices[i].i_1;
+			int leftBottomIndex = pIndices[i].i_2;
+			int rightBottomIndex = pIndices[i + 1].i_2;
+
+			bool isLeftTopAdd = true;
+			bool isRightTopAdd = true;
+			bool isleftBottomAdd = true;
+			bool isRightBottomAdd = true;
+
+			bool isLeftTopVertexAdd = true;
+			bool isRightTopVertexAdd = true;
+			bool isleftBottomVertexAdd = true;
+			bool isRightBottomVertexAdd = true;
+
+			for (int j = 0; j < m_iBrushRadius; ++j)
+			{
+				int tmpleftTopIndex = leftTopIndex - m_iCx * j;
+				int tmprightTopIndex = rightTopIndex - m_iCx * j;
+				int tmpleftBottomIndex = leftBottomIndex + m_iCx * j;
+				int tmprightBottomIndex = rightBottomIndex + m_iCx * j;
+
+				if (tmpleftTopIndex < 0)
+					isLeftTopAdd = false;
+				if (tmprightTopIndex < 0)
+					isRightTopAdd = false;
+				if (tmpleftBottomIndex > m_vertexCount - 1)
+					isleftBottomAdd = false;
+				if (tmprightBottomIndex > m_vertexCount - 1)
+					isRightBottomAdd = false;
+
+				for (int k = 0; k < m_iBrushRadius-j; ++k)
+				{
+					if ((tmpleftTopIndex - k) % m_iCx == (m_iCx-1))
+						isLeftTopVertexAdd = false;
+					if ((tmprightTopIndex + k) % m_iCx == (0))
+						isRightTopVertexAdd = false;
+					if ((tmpleftBottomIndex - k) % m_iCx == m_iCx - 1)
+						isleftBottomVertexAdd = false;
+					if ((tmprightBottomIndex + k) % m_iCx == (0))
+						isRightBottomVertexAdd = false;
+
+					if(isLeftTopVertexAdd && isLeftTopAdd)
+						m_vPickedIndex.push_back(tmpleftTopIndex -k);
+					
+					if(isRightTopVertexAdd && isRightTopAdd)
+						m_vPickedIndex.push_back(tmprightTopIndex +k);
+					
+					if(isleftBottomVertexAdd && isleftBottomAdd)
+						m_vPickedIndex.push_back(tmpleftBottomIndex -k);
+
+					if(isRightBottomVertexAdd && isRightBottomAdd)
+						m_vPickedIndex.push_back(tmprightBottomIndex +k);
+				}
+
+			}
+
+			ModifyYValue(tempVec);
+			
+			return true;
+		}
+	}
+
+	m_pVB->Unlock();
+	m_pIB->Unlock();
+
+	return false;
+}
+
+bool TerrainClass::Render(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj)
 {
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);	
-	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	//device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	device->SetFVF(TERRAINFVF);
-	device->SetTexture(0, m_pTexDiffuse);
+	device->SetTexture(0, m_pTexDiffuse2);
 	//인덱스 세팅
 	device->SetStreamSource(0, m_pVB, 0, sizeof(MyStruct::TERRAINVERTEX));
 	// select the vertex buffer to display
@@ -502,4 +646,49 @@ bool TerrainClass::Render(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXM
 	m_pTerrainShader->RenderShader(device, world, view, proj, m_vertexCount, m_indexCount, m_pTexDiffuse);
 
 	return true;
+}
+
+void TerrainClass::SetBrush(int radius, float strength)
+{
+	m_iBrushRadius = radius;
+	m_fStrength = strength;
+
+	m_fBaseStrength = strength * 0.005;
+}
+
+void TerrainClass::FindVertex()
+{
+
+	/*TERRAINVERTEX * pVertices;
+
+	m_pVB->Lock(0, 0, (void**)pVertices, 0);
+
+
+	for (int i = 0; i < m_vPickedIndex.size(); ++i)
+	{
+		pVertices[m_vPickedIndex[i]].point.y += m_fStrength * 0.005f;
+	}
+
+	m_pVB->Unlock();*/
+}
+
+void TerrainClass::ModifyYValue(D3DXVECTOR3 center)
+{
+	TERRAINVERTEX * pVertices;
+
+	m_pVB->Lock(0, 0, (void**)&pVertices, 0);
+
+	for (size_t i = 0; i < m_vPickedIndex.size(); ++i)
+	{
+		D3DXVECTOR3 pos = D3DXVECTOR3(pVertices[m_vPickedIndex[i]].point);
+		D3DXVECTOR3 lPos = (pos - center);
+
+		float length = sqrt(lPos.x * lPos.x + lPos.z * lPos.z);
+
+		float y = -(length * length) + m_iBrushRadius * m_iBrushRadius;
+
+		pVertices[m_vPickedIndex[i]].point.y += y * 0.01f;
+	}
+
+	m_pVB->Unlock();
 }

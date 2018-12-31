@@ -16,9 +16,10 @@ public:
 
 	bool Initialize(HINSTANCE, HWND[], int, int);
 	void Shutdown();
-	bool Frame();
+	bool Update();
 	bool InitTerrain(int xN, int zN, int xS, int zS, bool isLoadMap, LPCWSTR str);
 	bool LoadHeightMap(LPCWSTR str);
+	void SetBrush(int radius, float strength);
 
 private:
 	class   InputClass *	m_pInput;

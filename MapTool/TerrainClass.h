@@ -20,8 +20,12 @@ public:
 	void ShutDown();
 
 	bool LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName);
+	bool Picking(LPDIRECT3DDEVICE9 devce, HWND hwnd, D3DXMATRIX * matWorld, D3DXMATRIX * matView, D3DXMATRIX * matProj);
 
-	bool Render(LPDIRECT3DDEVICE9 device, D3DXMATRIXA16 * world, D3DXMATRIXA16 * view, D3DXMATRIXA16 * proj);
+	bool Render(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj);
+	void SetBrush(int radius, float strength);
+	void FindVertex();
+	void ModifyYValue(D3DXVECTOR3 center);
 
 private:
 	bool InitVertex(LPDIRECT3DDEVICE9 device);
@@ -29,14 +33,24 @@ private:
 	bool InitIndex(LPDIRECT3DDEVICE9 device);
 	bool InitIndexSmallTexture(LPDIRECT3DDEVICE9 device);
 
+
 private:
 	int			m_iCx;	// °¡·ÎÇÈ¼¿¼ö
 	int			m_iCz;	// ¼¼·ÎÇÈ¼¿¼ö
 	int			m_vertexCount;
 	int			m_indexCount;
 
+	int			m_iXIndexCount; // °¡·ÎÁÙÀÇ Æú¸®°ï °¹¼ö
+
+	int		m_iBrushRadius;
+	float		m_fStrength;
+	float		m_fBaseStrength;
+
 	int			m_iHighestY;
 	int			m_iLowestY;
+
+	vector<int> m_vPickedIndex;
+	vector<float> m_vPickedLength;
 
 	D3DXVECTOR3	m_vfScale; // x scale, y scale, z scale
 
@@ -50,6 +64,8 @@ private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVB;
 	LPDIRECT3DINDEXBUFFER9	m_pIB;
 	LPDIRECT3DTEXTURE9		m_pTexDiffuse;
+	LPDIRECT3DTEXTURE9		m_pTexDiffuse2;
+
 	LPDIRECT3DTEXTURE9		m_pTexHeight;
 };
 
