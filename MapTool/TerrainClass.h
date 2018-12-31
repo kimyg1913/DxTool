@@ -35,6 +35,9 @@ private:
 	int			m_vertexCount;
 	int			m_indexCount;
 
+	int			m_iHighestY;
+	int			m_iLowestY;
+
 	D3DXVECTOR3	m_vfScale; // x scale, y scale, z scale
 
 	TerrainShaderClass * m_pTerrainShader;

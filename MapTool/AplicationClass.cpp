@@ -111,6 +111,9 @@ bool ApplicationClass::Frame()
 	if (m_pInput->Frame())
 	{
 		m_pCamera->Frame(m_pInput);
+
+		if (m_pInput->IsNumber1Pressed())
+			m_pDirect3D->ToggleWireFrame();
 	}
 
 	m_pDirect3D->RenderBegin(m_pCamera);
