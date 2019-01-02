@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "TerrainClass.h"
-
+#include "MyMath.h"
 
 TerrainClass::TerrainClass() : m_pTerrainShader(nullptr),
 m_pTerrainVertex(nullptr), m_pTerrainIndex(nullptr), m_pVB(nullptr), m_pIB(nullptr)
@@ -68,7 +68,11 @@ bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber
 		return false;
 	}*/
 
-	
+	m_pLight = new LightClass;
+
+	m_pLight->SetPosition(-100.f, 100.f, -100.f);
+	m_pLight->SetDiffuseColor(0.8f, 0.8f, 0.8f, 1.0f);
+	//m_pLight->SetDirection(1.0f, 0.0f, 0.f);
 
 	m_pTerrainShader = new TerrainShaderClass;
 
@@ -117,6 +121,12 @@ void TerrainClass::ShutDown()
 		m_pTerrainShader->ShutDown();
 		delete m_pTerrainShader;
 		m_pTerrainShader = nullptr;
+	}
+
+	if (m_pLight)
+	{
+		delete m_pLight;
+		m_pLight = nullptr;
 	}
 
 	if (m_pIB)
@@ -175,7 +185,9 @@ bool TerrainClass::LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName)
 			height = ((float)(*((LPDWORD)d3drc.pBits + x + z * (d3drc.Pitch / 4)) & 0x000000ff));// / 10.0f;
 
 			assert(index < m_iCx * m_iCz && index >= 0  && "error!!!!!!!!!!!!!!!!!!" );
-
+			
+			m_heightMap[index].x = (float)((x - m_iCx * 0.5f) * m_vfScale.x);
+			m_heightMap[index].z = -(float)((z - m_iCz * 0.5f) * m_vfScale.z);
 			m_heightMap[index].y = height;
 			m_iHighestY = m_heightMap[index].y > m_iHighestY ? m_heightMap[index].y : m_iHighestY;
 			m_iLowestY = m_heightMap[index].y < m_iLowestY ? m_heightMap[index].y : m_iLowestY;
@@ -218,7 +230,11 @@ bool TerrainClass::InitVertex(LPDIRECT3DDEVICE9 device)
 		for (int z = 0; z < m_iCz; z++)
 		{
 			for (int x = 0; x < m_iCx; x++)
+			{
+				m_heightMap[index].x = (float)((x - m_iCx * 0.5f) * m_vfScale.x);
+				m_heightMap[index].z = -(float)((z - m_iCz * 0.5f) * m_vfScale.z);
 				m_heightMap[index++].y = 0.f;
+			}
 		}
 
 	}
@@ -231,18 +247,20 @@ bool TerrainClass::InitVertex(LPDIRECT3DDEVICE9 device)
 	{
 		for (int x = 0; x < m_iCx; ++x)
 		{
-			v.point.x = (float)((x - m_iCx * 0.5f) * m_vfScale.x);
-			v.point.z = -(float)((z - m_iCz * 0.5f) * m_vfScale.z);
-		//	v.point.y = m_heightMap[z * m_iCx + x].y;
-			v.point.y = 0.f;
+			v.point.x = m_heightMap[z * m_iCx + x].x;
+			v.point.z = m_heightMap[z * m_iCx + x].z;
+			v.point.y = m_heightMap[z * m_iCx + x].y;
+			
 			v.texture.x = (float)x / (m_iCx-1);
 			v.texture.y = (float)z / (m_iCz-1);
 			*pv++ = v;
 		}
 	}
 
-	m_pVB->Unlock();
+	SetPolygonIndexAndNormal();
+	SetNormalVertex();
 
+	m_pVB->Unlock();
 
 	return true;
 }
@@ -423,7 +441,7 @@ bool TerrainClass::InitIndex(LPDIRECT3DDEVICE9 device)
 	VOID* pIndices;
 
 	MYINDEX * pi =new MYINDEX[m_indexCount];
-	//m_pTerrainIndex = pi;
+	m_pTerrainIndex = pi;
 	
 	if (FAILED(m_pIB->Lock(0, m_indexCount * sizeof(MYINDEX), &pIndices, 0)))
 	{
@@ -431,8 +449,8 @@ bool TerrainClass::InitIndex(LPDIRECT3DDEVICE9 device)
 	}
 
 	MYINDEX i;
-	//MYINDEX* pi = (MYINDEX*)pIndices;
 	pi = (MYINDEX*)pIndices;
+
 
 	for (int z = 0; z < m_iCz - 1; ++z)
 	{
@@ -451,6 +469,7 @@ bool TerrainClass::InitIndex(LPDIRECT3DDEVICE9 device)
 	}
 
 	m_pIB->Unlock();
+	
 
 	return true;
 }
@@ -496,6 +515,112 @@ bool TerrainClass::InitIndexSmallTexture(LPDIRECT3DDEVICE9 device)
 	m_pIB->Unlock();
 
 	return true;
+}
+
+void TerrainClass::CalculatePolygonNormal()
+{
+	int index1, index2, index3, index4;
+	D3DXVECTOR3 v1, v2, v3, leftNor, rightNor;
+	
+	//m_vPolygonNormal.clear();
+	if (m_vPolygonNormal.size() == 0)
+	{
+		m_vPolygonNormal.reserve(m_indexCount);
+
+		TERRAINVERTEX * pVertices;
+
+		m_pVB->Lock(0, 0, (void**)&pVertices, 0);
+
+		for (int z = 0; z < m_iCz - 1; ++z)
+		{
+			for (int x = 0; x < m_iCx - 1; ++x)
+			{
+				index1 = z * m_iCx + x;
+				index2 = z * m_iCx + x + 1;
+				index3 = (z + 1) * m_iCx + x;
+				index4 = (z + 1) * m_iCx + x + 1;
+
+				v1.x = pVertices[index2].point.x - pVertices[index3].point.x; // 가운데 벡터
+				v1.y = pVertices[index2].point.y - pVertices[index3].point.y;
+				v1.z = pVertices[index2].point.z - pVertices[index3].point.z;
+
+				//v2 = pVertices[index2].point - pVertices[index1].point; // 위 벡터
+				v2.x = pVertices[index2].point.x - pVertices[index1].point.x;
+				v2.y = pVertices[index2].point.y - pVertices[index1].point.y;
+				v2.z = pVertices[index2].point.z - pVertices[index1].point.z;
+
+				//	v3 = pVertices[index2].point - pVertices[index4].point; // 아래 벡터
+				v3.x = pVertices[index2].point.x - pVertices[index4].point.x;
+				v3.y = pVertices[index2].point.y - pVertices[index4].point.y;
+				v3.z = pVertices[index2].point.z - pVertices[index4].point.z;
+
+
+				D3DXVec3Cross(&leftNor, &v1, &v2);
+				D3DXVec3Cross(&rightNor, &v3, &v1);
+
+				float leftLength = sqrt(leftNor.x * leftNor.x + leftNor.y * leftNor.y + leftNor.z * leftNor.z);
+				float rightLength = sqrt(rightNor.x * rightNor.x + rightNor.y * rightNor.y + rightNor.z * rightNor.z);
+
+				leftNor = leftNor / leftLength;
+				rightLength /= leftLength;
+
+				m_vPolygonNormal.push_back(leftNor);
+				m_vPolygonNormal.push_back(rightNor);
+			}
+		}
+		m_pVB->Unlock();
+	}
+
+
+}
+
+void TerrainClass::SetPolygonIndexAndNormal()
+{
+	int poly11, poly12, poly1, poly8, poly7, poly6;
+	int iPolyXSize = m_indexCount / (m_iCz - 1);
+	int sumVertexIndex;
+	vector<int> vLocatePoly;
+
+	m_vPolygonIndexPerVertex.reserve(m_iCx*m_iCz);
+
+	for (int z = 0; z < m_iCz; ++z)
+	{
+		for (int x = 0; x < m_iCx; ++x)
+		{
+			sumVertexIndex = z * m_iCx + x;
+
+			if (z > 0 && x > 0) // 11시방향 평면삼각형
+			{
+				poly11 = (2 * x - 1) + (z - 1) * iPolyXSize;
+				vLocatePoly.push_back(poly11);
+			}
+
+			if (z > 0 && x < m_iCx - 1) //12, 1 시방향 평면 삼각형
+			{
+				poly12 = (2 * x) + (z - 1) * iPolyXSize;
+				poly1 = (2 * x + 1) + (z - 1) * iPolyXSize;
+				vLocatePoly.push_back(poly12);
+				vLocatePoly.push_back(poly1);
+			}
+
+			if (z < m_iCz - 1 && x > 0) // 8,7시 방향 평면 삼각형
+			{
+				poly8 = (2 * (x - 1) + (z * iPolyXSize));
+				poly7 = (2 * (x - 1) + 1 + (z * iPolyXSize));
+				vLocatePoly.push_back(poly8);
+				vLocatePoly.push_back(poly7);
+			}
+
+			if (z < m_iCz - 1 && x < m_iCx - 1) //6시 방향 평면삼각형
+			{
+				poly6 = ((2 * x) + (z * iPolyXSize));
+				vLocatePoly.push_back(poly6);
+			}
+
+			m_vPolygonIndexPerVertex.push_back(vLocatePoly);
+			vLocatePoly.clear();
+		}
+	}
 }
 
 bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * matWorld, D3DXMATRIX * matView, D3DXMATRIX * matProj)
@@ -570,17 +695,17 @@ bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * mat
 			bool isleftBottomAdd = true;
 			bool isRightBottomAdd = true;
 
-			bool isLeftTopVertexAdd = true;
-			bool isRightTopVertexAdd = true;
-			bool isleftBottomVertexAdd = true;
-			bool isRightBottomVertexAdd = true;
-
 			for (int j = 0; j < m_iBrushRadius; ++j)
 			{
 				int tmpleftTopIndex = leftTopIndex - m_iCx * j;
 				int tmprightTopIndex = rightTopIndex - m_iCx * j;
 				int tmpleftBottomIndex = leftBottomIndex + m_iCx * j;
 				int tmprightBottomIndex = rightBottomIndex + m_iCx * j;
+
+				bool isLeftTopVertexAdd = true;
+				bool isRightTopVertexAdd = true;
+				bool isleftBottomVertexAdd = true;
+				bool isRightBottomVertexAdd = true;
 
 				if (tmpleftTopIndex < 0)
 					isLeftTopAdd = false;
@@ -643,7 +768,7 @@ bool TerrainClass::Render(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATR
 	//텍스쳐 세팅
 	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 	device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-	m_pTerrainShader->RenderShader(device, world, view, proj, m_vertexCount, m_indexCount, m_pTexDiffuse);
+	m_pTerrainShader->RenderShader(device, world, view, proj, m_vertexCount, m_indexCount, m_pTexDiffuse,&m_pLight->GetDiffuseColor(),&m_pLight->GetPosition());
 
 	return true;
 }
@@ -685,10 +810,139 @@ void TerrainClass::ModifyYValue(D3DXVECTOR3 center)
 
 		float length = sqrt(lPos.x * lPos.x + lPos.z * lPos.z);
 
-		float y = -(length * length) + m_iBrushRadius * m_iBrushRadius;
+		float yValue = -(length * length) / (m_iBrushRadius * m_iBrushRadius) + 1;
 
-		pVertices[m_vPickedIndex[i]].point.y += y * 0.01f;
+		if(m_eDrawMode == DM_LIFT)
+			pVertices[m_vPickedIndex[i]].point.y += yValue * m_fStrength * 0.1f;
+		else if(m_eDrawMode == DM_FALL)
+			pVertices[m_vPickedIndex[i]].point.y -= yValue * m_fStrength * 0.1f;
 	}
 
 	m_pVB->Unlock();
+
+	ModifyPickedVertexNormal();
+}
+
+void TerrainClass::SetDrawMode(DRAWMODE mode)
+{
+	m_eDrawMode = mode;
+}
+
+
+void TerrainClass::SetNormalVertex()
+{
+
+//	else // 전체 노말 세팅
+	{
+		CalculatePolygonNormal();
+		TERRAINVERTEX * pVertices;
+
+		m_pVB->Lock(0, 0, (void**)&pVertices, 0);
+		
+		int size;
+		
+		for (int i = 0; i < m_vPolygonIndexPerVertex.size(); ++i)
+		{
+			D3DXVECTOR3 vSum = D3DXVECTOR3(0.f, 0.f, 0.f);
+			size = m_vPolygonIndexPerVertex[i].size();
+
+			for (int j = 0; j < size; ++j)
+			{
+				vSum += m_vPolygonNormal[m_vPolygonIndexPerVertex[i][j]];
+			}
+
+			vSum /= size;
+			VectorNormalize(&vSum);
+			//D3DXVECTOR3 n = vSum;
+			//m_vPolygonNormal[i] = vSum;
+			pVertices[i].normal.x = vSum.x;
+			pVertices[i].normal.y = vSum.y;
+			pVertices[i].normal.z = vSum.z;
+		
+		/*	
+			int a = 10;*/
+		}
+		m_pVB->Unlock();
+	}
+
+}
+
+//픽된 버텍스들의 노말만 변경하는 코드
+void TerrainClass::ModifyPickedVertexNormal()
+{
+	set<int> changedPolygonIndex;
+
+	//픽된 버텍스들의 인덱스정보로
+	//기존에 버텍스들과 연결된 폴리곤들의 인덱스들을
+	//set을 이용해 담는다. set을 이용하는 이유는
+	//중복된 폴리곤인덱스가 여러번 나올수 있기때문에 사용했다.
+	//픽된 버텍스들의 노멀을 결정하기 위해서는 주변 폴리곤들의 평균값을 구해야하므로
+	//픽된 버텍스들과 연관된 주변 폴리곤들의 노멀맵도 변경해줘야한다.
+	for (int i = 0; i < m_vPickedIndex.size(); ++i)
+	{
+		int size = m_vPolygonIndexPerVertex[m_vPickedIndex[i]].size();
+		
+		for (int j = 0; j < size; ++j)
+		{
+			changedPolygonIndex.insert(m_vPolygonIndexPerVertex[m_vPickedIndex[i]][j]);
+		}
+	}
+
+	//
+	set<int>::iterator iter; 
+
+	TERRAINVERTEX * pVertices;
+	m_pVB->Lock(0, 0, (void**)&pVertices, 0);
+
+	for (iter = changedPolygonIndex.begin(); iter != changedPolygonIndex.end(); ++iter)
+	{
+		int polyIndex = *iter;
+		int z = polyIndex / m_iXIndexCount;
+
+		if (polyIndex % 2 == 0) //왼쪽 폴리곤이라면
+		{
+			int index1 = polyIndex / 2 + z;
+			int index2 = polyIndex / 2 + z + 1;
+			int index3 = ((polyIndex % m_iXIndexCount) / 2) + (z + 1) * m_iCx;
+
+			D3DXVECTOR3 vUp = pVertices[index2].point - pVertices[index3].point;
+			D3DXVECTOR3 vRight = pVertices[index2].point - pVertices[index1].point;
+			
+			D3DXVECTOR3 vCross;
+			D3DXVec3Cross(&vCross, &vUp, &vRight);
+
+			D3DXVec3Normalize(&m_vPolygonNormal[polyIndex], &vCross);
+		}
+		else //아래 폴리곤이라면
+		{
+			int index1 = polyIndex / 2 + (z + 1);
+			int index2 = (((polyIndex - 1) % m_iXIndexCount) / 2) + ((z + 1) * m_iCx);
+			int index3 = (((polyIndex - 1) % m_iXIndexCount) / 2) + ((z + 1) * m_iCx) + 1;
+
+			D3DXVECTOR3 vUp = pVertices[index1].point - pVertices[index3].point;
+			D3DXVECTOR3 vRightUp = pVertices[index1].point - pVertices[index2].point;
+			D3DXVECTOR3 vCross;
+			D3DXVec3Cross(&vCross, &vUp, &vRightUp);
+
+			D3DXVec3Normalize(&m_vPolygonNormal[polyIndex], &vCross);
+		}
+	}
+
+	for (int i = 0; i < m_vPickedIndex.size(); ++i)
+	{
+		int size = m_vPolygonIndexPerVertex[m_vPickedIndex[i]].size();
+		int index = m_vPickedIndex[i];
+		D3DXVECTOR3 sum = D3DXVECTOR3(0.f, 0.f, 0.f);
+
+		for (int j = 0; j < size; ++j)
+		{
+			sum += m_vPolygonNormal[m_vPolygonIndexPerVertex[index][j]];
+		}
+
+		sum /= size;
+		pVertices[index].normal = sum;
+	}
+
+	m_pVB->Unlock();
+
 }

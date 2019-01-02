@@ -85,7 +85,16 @@
       <Filter>헤더 파일\DX</Filter>
     </ClInclude>
     <ClInclude Include="Time.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="MyMath.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LightClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="FontClass.h">
+      <Filter>헤더 파일\DX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -135,7 +144,13 @@
       <Filter>소스 파일\DX</Filter>
     </ClCompile>
     <ClCompile Include="Time.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="LightClass.cpp">
+      <Filter>소스 파일\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="FontClass.cpp">
+      <Filter>소스 파일\DX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

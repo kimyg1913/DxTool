@@ -20,11 +20,13 @@ public:
 	bool InitTerrain(int xN, int zN, int xS, int zS, bool isLoadMap, LPCWSTR str);
 	bool LoadHeightMap(LPCWSTR str);
 	void SetBrush(int radius, float strength);
+	void SetDrawMode(DRAWMODE mode);
 
 private:
 	class   InputClass *	m_pInput;
 	class   Camera *		m_pCamera;
 	class	D3DClass *		m_pDirect3D;
 	class   FpsClass *		m_pFps;
+	class   FontClass *		m_pFont;
 	
 };

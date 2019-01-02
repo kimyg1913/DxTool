@@ -9,6 +9,12 @@ public:
 	~Camera();
 
 public:
+	static Camera * GetInstance()
+	{
+		static Camera camera;
+		return &camera;
+	}
+
 	bool Initialize();
 	bool ShutDown();
 

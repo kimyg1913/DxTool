@@ -8,9 +8,9 @@ public:
 	~TerrainShaderClass();
 
 	bool Initialize(LPDIRECT3DDEVICE9 device);
-	bool RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj, int vertexSize, int indexSize, LPDIRECT3DTEXTURE9 diffuseTex);
+	bool RenderShader(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj, int vertexSize, int indexSize, LPDIRECT3DTEXTURE9 diffuseTex, D3DXVECTOR4 * vLightDiffuse, D3DXVECTOR3 * vLightDir);
 
-	bool SetShaderParameters(D3DXMATRIX *world, D3DXMATRIX *view, D3DXMATRIX *proj, LPDIRECT3DTEXTURE9 diffuseTex);
+	bool SetShaderParameters(D3DXMATRIX *world, D3DXMATRIX *view, D3DXMATRIX *proj, LPDIRECT3DTEXTURE9 diffuseTex, D3DXVECTOR4 * vLightDiffuse, D3DXVECTOR3 * vLightDir);
 	void ShutDown();
 
 private:

@@ -2,6 +2,7 @@
 
 #include "Base.h"
 #include "TerrainShaderClass.h"
+#include "LightClass.h"
 
 using namespace MyStruct;
 
@@ -26,6 +27,7 @@ public:
 	void SetBrush(int radius, float strength);
 	void FindVertex();
 	void ModifyYValue(D3DXVECTOR3 center);
+	void SetDrawMode(DRAWMODE mode);
 
 private:
 	bool InitVertex(LPDIRECT3DDEVICE9 device);
@@ -33,13 +35,17 @@ private:
 	bool InitIndex(LPDIRECT3DDEVICE9 device);
 	bool InitIndexSmallTexture(LPDIRECT3DDEVICE9 device);
 
+	void CalculatePolygonNormal();
+	void SetPolygonIndexAndNormal();
+	void SetNormalVertex();
+
+	void ModifyPickedVertexNormal();
 
 private:
 	int			m_iCx;	// °¡·ÎÇÈ¼¿¼ö
 	int			m_iCz;	// ¼¼·ÎÇÈ¼¿¼ö
 	int			m_vertexCount;
 	int			m_indexCount;
-
 	int			m_iXIndexCount; // °¡·ÎÁÙÀÇ Æú¸®°ï °¹¼ö
 
 	int		m_iBrushRadius;
@@ -49,8 +55,12 @@ private:
 	int			m_iHighestY;
 	int			m_iLowestY;
 
+	DRAWMODE	m_eDrawMode;
+
 	vector<int> m_vPickedIndex;
 	vector<float> m_vPickedLength;
+	vector<D3DXVECTOR3> m_vPolygonNormal;
+	vector<vector<int>> m_vPolygonIndexPerVertex;
 
 	D3DXVECTOR3	m_vfScale; // x scale, y scale, z scale
 
@@ -67,5 +77,7 @@ private:
 	LPDIRECT3DTEXTURE9		m_pTexDiffuse2;
 
 	LPDIRECT3DTEXTURE9		m_pTexHeight;
+
+	LightClass * m_pLight;
 };
 

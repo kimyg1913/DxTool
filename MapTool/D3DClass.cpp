@@ -3,6 +3,7 @@
 #include "ColorShaderClass.h"
 #include "Camera.h"
 #include "TerrainClass.h"
+#include "FontClass.h"
 
 D3DClass::D3DClass() :
 	m_pTerrain(nullptr),
@@ -140,9 +141,10 @@ void D3DClass::Shutdown()
 	m_pD3D->Release();
 }
 
-void D3DClass::RenderBegin(Camera * pCamera)
+void D3DClass::RenderBegin(Camera * pCamera, FontClass * pFont)
 {
 	m_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
 
 	m_matView = *pCamera->GetViewMatrix();
 
@@ -151,6 +153,8 @@ void D3DClass::RenderBegin(Camera * pCamera)
 	// 실제 렌더링 하는 부분
 	{
 		RenderScene(0, 0, 255, 255);
+		
+		pFont->Update();
 	}
 
 	m_pd3dDevice->EndScene();
@@ -177,6 +181,19 @@ void D3DClass::RenderScene(int r, int g, int b, int a)
 	else
 		m_pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
+
+	/*D3DXVECTOR3 vecDir;
+	D3DLIGHT9 light;
+
+	ZeroMemory(&light, sizeof(D3DLIGHT9));
+
+	light.Type = D3DLIGHT_DIRECTIONAL;
+	light.Diffuse.r = 1.0f;
+	light.Diffuse.g = 1.0f;
+	light.Diffuse.b = 1.0f;
+	light.Range = 1000.f;
+	*/
+
 	if(m_pTerrain)
 		m_pTerrain->Render(m_pd3dDevice, &m_matWorld, &m_matView, &m_matProjection);
 
@@ -201,6 +218,14 @@ void D3DClass::SetBrush(int radius, float strength)
 	if (m_pTerrain)
 	{
 		m_pTerrain->SetBrush(radius, strength);
+	}
+}
+
+void D3DClass::SetDrawMode(DRAWMODE mode)
+{
+	if (m_pTerrain)
+	{
+		m_pTerrain->SetDrawMode(mode);
 	}
 }
 

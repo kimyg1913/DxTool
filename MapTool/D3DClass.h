@@ -16,7 +16,7 @@ public:
 	void Shutdown();
 
 	LPDIRECT3DDEVICE9	GetDevice() { return m_pd3dDevice; }
-	void RenderBegin(class Camera * pCamera);
+	void RenderBegin(class Camera * pCamera, class FontClass * pFont);
 	void RenderEnd();
 
 	void ToggleWireFrame();
@@ -24,6 +24,7 @@ public:
 	void Picking();
 
 	void SetBrush(int radius, float strength);
+	void SetDrawMode(DRAWMODE mode);
 
 private:
 	void RenderScene(int r, int g, int b, int a);
