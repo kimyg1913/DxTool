@@ -23,12 +23,15 @@ void FpsClass::Update()
 {
 	m_count++;
 
-	if (timeGetTime() >= (m_startTime + 1000))
+
+	DWORD currentTime = timeGetTime();
+
+	if (currentTime >= m_startTime + 1000)
 	{
 		m_fps = m_count;
 		m_count = 0;
 
-		m_startTime = timeGetTime();
+		m_startTime = currentTime;
 	}
 }
 

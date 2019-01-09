@@ -70,12 +70,11 @@ HRESULT D3DClass::InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATR
 	d3dpp.BackBufferHeight = screenHeight;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;		// 
 
 
 	/// 디바이스 생성
-	if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		&d3dpp, &m_pd3dDevice)))
+	if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &m_pd3dDevice)))
 	{
 		return E_FAIL;
 	}
@@ -146,21 +145,25 @@ void D3DClass::RenderBegin(Camera * pCamera, FontClass * pFont)
 	m_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
 
+
 	m_matView = *pCamera->GetViewMatrix();
 
 	m_pd3dDevice->BeginScene();
 
-	// 실제 렌더링 하는 부분
-	{
-		RenderScene(0, 0, 255, 255);
-		
-		pFont->Update();
-	}
+	
 
+	// 실제 렌더링 하는 부분
+	RenderScene(0, 0, 255, 255);
+	
+
+	
+	pFont->Update();
+
+	
 	m_pd3dDevice->EndScene();
 
 	m_pd3dDevice->Present(NULL, NULL, NULL, NULL);
-	
+	//return;
 	RenderEnd();
 }
 
@@ -181,23 +184,8 @@ void D3DClass::RenderScene(int r, int g, int b, int a)
 	else
 		m_pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
-
-	/*D3DXVECTOR3 vecDir;
-	D3DLIGHT9 light;
-
-	ZeroMemory(&light, sizeof(D3DLIGHT9));
-
-	light.Type = D3DLIGHT_DIRECTIONAL;
-	light.Diffuse.r = 1.0f;
-	light.Diffuse.g = 1.0f;
-	light.Diffuse.b = 1.0f;
-	light.Range = 1000.f;
-	*/
-
 	if(m_pTerrain)
 		m_pTerrain->Render(m_pd3dDevice, &m_matWorld, &m_matView, &m_matProjection);
-
-	// copy the vertex buffer to the back buffer
 	
 }
 

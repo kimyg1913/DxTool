@@ -92,8 +92,8 @@ bool ColorShaderClass::InitializeShader(LPDIRECT3DDEVICE9 device, HWND hwnd, LPC
 		if (ack)
 		{
 			TCHAR * str = new TCHAR[size];
-			_stprintf(str, (TCHAR*)ack, size);
-			OutputDebugString(str);
+		//	_stprintf(str, (TCHAR*)ack, size);
+		//	OutputDebugString(str);
 			delete[] str;
 		}
 		

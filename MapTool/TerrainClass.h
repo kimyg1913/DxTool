@@ -2,6 +2,7 @@
 
 #include "Base.h"
 #include "TerrainShaderClass.h"
+#include "ShadowShaderClass.h"
 #include "LightClass.h"
 
 using namespace MyStruct;
@@ -25,7 +26,7 @@ public:
 
 	bool Render(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj);
 	void SetBrush(int radius, float strength);
-	void FindVertex();
+
 	void ModifyYValue(D3DXVECTOR3 center);
 	void SetDrawMode(DRAWMODE mode);
 
@@ -65,6 +66,7 @@ private:
 	D3DXVECTOR3	m_vfScale; // x scale, y scale, z scale
 
 	TerrainShaderClass * m_pTerrainShader;
+	ShadowShaderClass * m_pShadworShader;
 
 	TERRAINVERTEX * m_pTerrainVertex;//높이맵의 정점배열
 	MYINDEX		*	m_pTerrainIndex;
@@ -73,8 +75,10 @@ private:
 
 	LPDIRECT3DVERTEXBUFFER9 m_pVB;
 	LPDIRECT3DINDEXBUFFER9	m_pIB;
+
 	LPDIRECT3DTEXTURE9		m_pTexDiffuse;
 	LPDIRECT3DTEXTURE9		m_pTexDiffuse2;
+
 
 	LPDIRECT3DTEXTURE9		m_pTexHeight;
 

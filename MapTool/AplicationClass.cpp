@@ -6,6 +6,10 @@
 #include "FpsClass.h"
 #include "Time.h"
 #include "FontClass.h"
+#include <iostream>
+
+#pragma comment( linker, "/entry:WinMainCRTStartup /subsystem:console")
+
 
 ApplicationClass::ApplicationClass() :
 	m_pInput(nullptr), m_pCamera(nullptr),m_pDirect3D(nullptr), m_pFps(nullptr), m_pFont(nullptr)
@@ -119,6 +123,9 @@ bool ApplicationClass::Update()
 
 	Time::getInstance()->update();
 
+
+	
+
 	bool result = true;
 
 	if (m_pInput->IsEscapePressed())
@@ -134,8 +141,10 @@ bool ApplicationClass::Update()
 	str += strFps;
 
 	m_pFont->SetStr(str);
-	
+	std::wcout << str << std::endl;
 
+
+	
 	if (m_pInput->Update())
 	{
 		m_pCamera->Update(m_pInput);
@@ -151,8 +160,11 @@ bool ApplicationClass::Update()
 		}
 	}
 
+	
+
 	m_pDirect3D->RenderBegin(m_pCamera, m_pFont);
 
+	
 
 	if (!result)
 		return false;
