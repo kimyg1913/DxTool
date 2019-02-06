@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "InputClass.h"
 
+DEFINITION_SINGLE(InputClass)
 
 InputClass::InputClass():
-	m_directInput(nullptr), m_keyboard(nullptr), m_mouse(nullptr)
+	m_directInput(nullptr), m_keyboard(nullptr), m_mouse(nullptr), m_tButton1(0.0f)
 {
 }
-
 
 InputClass::~InputClass()
 {
@@ -179,11 +179,35 @@ bool InputClass::IsDPressed()
 	return false;
 }
 
+bool InputClass::IsQPressed()
+{
+	if (m_keyboardState[DIK_Q] & 0x80)
+		return true;
+
+	return false;
+}
+
+bool InputClass::IsEPressed()
+{
+	if (m_keyboardState[DIK_E] & 0x80)
+		return true;
+
+	return false;
+}
+
 bool InputClass::IsNumber1Pressed()
 {
 	if (m_keyboardState[DIK_1] & 0x80)
-		return true;
+	{
+		float nowT = timeGetTime();
 
+		if (((nowT - m_tButton1)/ 1000.0f) >= 0.3)
+		{
+			m_tButton1 = nowT;
+			return true;
+		}
+
+	}
 	return false;
 }
 

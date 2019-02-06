@@ -73,7 +73,7 @@ bool TerrainShaderClass::SetShaderParameters(D3DXMATRIX * world, D3DXMATRIX * vi
 	D3DXVECTOR4 vLP = D3DXVECTOR4(vLightPosition->x, vLightPosition->y, vLightPosition->z, 1.0f);
 	m_pTerrainShader->SetVector("lightPosition", &vLP);
 
-	D3DXVECTOR3 * vCP = Camera::GetInstance()->GetEye();
+	D3DXVECTOR3 * vCP = GET_SINGLE(Camera)->GetEye();
 	D3DXVECTOR4 vCP4 = D3DXVECTOR4(vCP->x, vCP->y, vCP->z, 1.0f);
 	m_pTerrainShader->SetVector("cameraPosition", &vCP4);
 

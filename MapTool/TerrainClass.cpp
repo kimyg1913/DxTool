@@ -2,9 +2,12 @@
 #include "TerrainClass.h"
 #include "MyMath.h"
 #include "PerlinClass.h"
+#include "ErosionClass.h"
 #include <assert.h>
 
-TerrainClass::TerrainClass() : m_pTerrainShader(nullptr),
+DEFINITION_SINGLE(TerrainClass)
+
+TerrainClass::TerrainClass() : m_isCreated(false),m_pTerrainShader(nullptr), m_vRecentPicked(987654321, 987654321, 987654321), m_iRecentIndex(-987654321),
 m_pTerrainVertex(nullptr), m_pTerrainIndex(nullptr), m_pVB(nullptr), m_pIB(nullptr)
 , m_pTexDiffuse(nullptr), m_pTexHeight(nullptr), m_heightMap(nullptr), m_iHighestY(-1), m_iLowestY(1)
 {
@@ -18,10 +21,15 @@ m_pTerrainVertex(nullptr), m_pTerrainIndex(nullptr), m_pVB(nullptr), m_pIB(nullp
 
 TerrainClass::~TerrainClass()
 {
+	DESTROY_SINGLE(ErosionClass);
+	m_vPolygonIndexPerVertex.clear();
+	ShutDown();
 }
 
 bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize, bool isLoadMap, LPCWSTR str)
 {
+	
+	m_isCreated = true;
 	m_iCx = xNumber;
 	m_iCz = zNumber;
 	m_vertexCount = (xNumber) * (zNumber);
@@ -34,11 +42,6 @@ bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber
 		if(!LoadHeightMap(device, str))
 			return false;
 	}
-
-	/*if (!InitVertexSmallTexture(device))
-	{
-		return false;
-	}*/
 
 	if (!InitVertex(device))
 	{
@@ -55,14 +58,14 @@ bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber
 		return false;
 	}
 
-	if (FAILED(D3DXCreateTextureFromFile(device, L"Textures/sand1.jpg", &m_pTexDiffuse2)))
+	if (FAILED(D3DXCreateTextureFromFile(device, L"Textures/desert.jpg", &m_pTexDiffuse2)))
 	{
 		return false;
 	}
 
 	m_pLight = new LightClass;
 
-	m_pLight->SetPosition(-100.f, 100.f, -100.f);
+	m_pLight->SetPosition(-1000.f, 1000.f, -1000.f);
 	m_pLight->SetDirection(0.f, 0.f, 0.f);
 	m_pLight->SetDiffuseColor(0.8f, 0.8f, 0.8f, 1.0f);
 
@@ -80,17 +83,15 @@ bool TerrainClass::Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber
 		return false;
 	}
 
+	GET_SINGLE(ErosionClass)->Init(m_iCx, m_iCz);
+
 	return true;
 }
 
 void TerrainClass::ShutDown()
 {
 
-	if (m_heightMap)
-	{
-		delete m_heightMap;
-		m_heightMap = nullptr;
-	}
+	m_isCreated = false;
 
 	if (m_pTexDiffuse)
 	{
@@ -236,23 +237,36 @@ bool TerrainClass::InitVertex(LPDIRECT3DDEVICE9 device)
 
 		int index = 0;
 
-		PerlinClass * perlin =  PerlinClass::GetInstance();
-		perlin->Setup(2.5, 0.6f, 4);
+		PerlinClass * perlin = GET_SINGLE(PerlinClass);
+		perlin->Setup(32, 0.5, 0.02, 5);
 
+		double maxVal = -987654321;
+		double minVal = 987654321;
 
 		for (int z = 0; z < m_iCz; z++)
 		{
 			for (int x = 0; x < m_iCx; x++)
 			{
-				m_heightMap[index].x = (float)((x - m_iCx * 0.5f)* 2.f * m_vfScale.x);
-				m_heightMap[index].z = -(float)((z - m_iCz * 0.5f)* 2.f * m_vfScale.z);
+				m_heightMap[index].x = (float)((x - m_iCx * 0.5f)*  m_vfScale.x);
+				m_heightMap[index].z = -(float)((z - m_iCz * 0.5f) * m_vfScale.z);
 				
-				float a = perlin->ComputeNoise2D(x, z);// *2.0f;// *0.3f;
-				m_heightMap[index++].y = a;
-				//m_heightMap[index++].y = 0.f;
+				float noiseValue = perlin->ComputeNoise2D(x, z);
+				
+				//m_heightMap[index].y = pow(a, 2);
+
+				maxVal = noiseValue > maxVal ? noiseValue : maxVal;
+				minVal = noiseValue < minVal ? noiseValue : minVal;
+
+				m_heightMap[index++].y = noiseValue;
 			}
 		}
 
+	/*	for (int i = 0; i < m_iCx * m_iCz; ++i)
+		{
+			m_heightMap[i].y += -minVal;
+		}*/
+
+		DESTROY_SINGLE(PerlinClass);
 	}
 
 	TERRAINVERTEX v;	
@@ -275,10 +289,11 @@ bool TerrainClass::InitVertex(LPDIRECT3DDEVICE9 device)
 
 	delete[] m_heightMap;
 
+	m_pVB->Unlock();
+
 	SetPolygonIndexAndNormal();
 	SetNormalVertex();
 
-	m_pVB->Unlock();
 
 	return true;
 }
@@ -540,7 +555,7 @@ void TerrainClass::CalculatePolygonNormal()
 	int index1, index2, index3, index4;
 	D3DXVECTOR3 v1, v2, v3, leftNor, rightNor;
 	
-	//m_vPolygonNormal.clear();
+	m_vPolygonNormal.clear();
 	if (m_vPolygonNormal.size() == 0)
 	{
 		m_vPolygonNormal.reserve(m_indexCount);
@@ -597,12 +612,16 @@ void TerrainClass::SetPolygonIndexAndNormal()
 	int poly11, poly12, poly1, poly8, poly7, poly6;
 	int iPolyXSize = m_indexCount / (m_iCz - 1);
 	int sumVertexIndex;
-	vector<int> vLocatePoly;
 
-	m_vPolygonIndexPerVertex.reserve(m_iCx*m_iCz);
+	vector<int>  vLocatePoly;
+	//배열로 최대 만들수 있는 메모리, 스택 공간에서 
+	//스택 최대 메모리
+
+	//m_vPolygonIndexPerVertex.reserve(m_iCx*m_iCz);
 
 	for (int z = 0; z < m_iCz; ++z)
 	{
+
 		for (int x = 0; x < m_iCx; ++x)
 		{
 			sumVertexIndex = z * m_iCx + x;
@@ -641,7 +660,7 @@ void TerrainClass::SetPolygonIndexAndNormal()
 	}
 }
 
-bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * matWorld, D3DXMATRIX * matView, D3DXMATRIX * matProj)
+bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * matWorld, D3DXMATRIX * matView, D3DXMATRIX * matProj, D3DXVECTOR3 * vPicked, BRUSHOREROSION eBEMODE)
 {
 	D3DVIEWPORT9 ViewPortInfo;
 	D3DXVECTOR3 v;  //클릭한 점에 해당하는 직선
@@ -652,6 +671,12 @@ bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * mat
 	D3DXMATRIX m;
 
 	float Strength = m_fBaseStrength;
+	float radius;
+
+	if (eBEMODE == BE_BRUSH)
+		radius = m_iBrushRadius;
+	else if(eBEMODE == BE_EROSION)
+		radius = GET_SINGLE(ErosionClass)->GetRainRadius();
 
 	device->GetViewport(&ViewPortInfo);
 
@@ -695,9 +720,10 @@ bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * mat
 
 		if (isPicked)
 		{
-			D3DXVECTOR3 tempVec = v0 + u * (v1 - v0) + v*(v2 - v0);
-
 			m_vPickedIndex.clear();
+			m_vRecentPicked = v0 + u * (v1 - v0) + v*(v2 - v0);
+			m_iRecentIndex = i;
+			*vPicked = m_vRecentPicked;
 
 			//아래 삼각형
 			if (i % 2 != 0)
@@ -708,15 +734,15 @@ bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * mat
 			int leftBottomIndex = pIndices[i].i_2;
 			int rightBottomIndex = pIndices[i + 1].i_2;
 
-			int lRadius = leftTopIndex % m_iCx < m_iBrushRadius ? leftTopIndex % m_iCx : m_iBrushRadius;
-			int rRadius = m_iCx - rightTopIndex % m_iCx <= m_iBrushRadius ? m_iCx - rightTopIndex % m_iCx  - 1 : m_iBrushRadius;
-			
-			int uRadius = leftTopIndex / m_iCx < m_iBrushRadius ? leftTopIndex / m_iCx : m_iBrushRadius;
+			int lRadius = leftTopIndex % m_iCx < radius ? leftTopIndex % m_iCx : radius;
+			int rRadius = m_iCx - rightTopIndex % m_iCx <= radius ? m_iCx - rightTopIndex % m_iCx - 1 : radius;
+
+			int uRadius = leftTopIndex / m_iCx < radius ? leftTopIndex / m_iCx : radius;
 			int dRadius = (m_iCz - 1) - (leftBottomIndex / m_iCx);
-			
-			if (dRadius > m_iBrushRadius)
+
+			if (dRadius > radius)
 			{
-				dRadius = m_iBrushRadius;
+				dRadius = radius;
 			}
 
 			int leftT = leftTopIndex - (uRadius * m_iCx + lRadius);
@@ -735,16 +761,19 @@ bool TerrainClass::Picking(LPDIRECT3DDEVICE9 device, HWND hwnd, D3DXMATRIX * mat
 					int index = leftT + (m_iCx * i + j);
 
 					D3DXVECTOR3 v0 = pVertices[index].point;
-					D3DXVECTOR3 v1 = tempVec - v0;
+					D3DXVECTOR3 v1 = m_vRecentPicked - v0;
 					float length = sqrt(v1.x * v1.x + v1.z * v1.z);
 
-					if(length < m_iBrushRadius * 0.75f)
+					if (length < radius * 0.75f)
+					{
 						m_vPickedIndex.push_back(index);
+					}
 				}
 
 			}
-	
-			ModifyYValue(tempVec);	
+
+			m_pVB->Unlock();
+			m_pIB->Unlock();
 			return true;
 		}
 	}
@@ -759,8 +788,6 @@ bool TerrainClass::Render(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATR
 {
 	m_pLight->SetViewMatirx();
 	m_pLight->SetProjMatirx();
-
-
 
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetFVF(TERRAINFVF);
@@ -798,9 +825,62 @@ void TerrainClass::SetBrush(int radius, float strength)
 
 void TerrainClass::ModifyYValue(D3DXVECTOR3 center)
 {
+
+	//m_vPickedIndex.clear();
+	//int i = m_iRecentIndex;
+
 	TERRAINVERTEX * pVertices;
+	//MYINDEX * pIndices;
 
 	m_pVB->Lock(0, 0, (void**)&pVertices, 0);
+	//m_pIB->Lock(0, 0, (void**)&pIndices, 0);
+
+	////아래 삼각형
+	//if (i % 2 != 0)
+	//	i -= 1;
+
+	//int leftTopIndex = pIndices[i].i_0;
+	//int rightTopIndex = pIndices[i].i_1;
+	//int leftBottomIndex = pIndices[i].i_2;
+	//int rightBottomIndex = pIndices[i + 1].i_2;
+
+	//int lRadius = leftTopIndex % m_iCx < m_iBrushRadius ? leftTopIndex % m_iCx : m_iBrushRadius;
+	//int rRadius = m_iCx - rightTopIndex % m_iCx <= m_iBrushRadius ? m_iCx - rightTopIndex % m_iCx - 1 : m_iBrushRadius;
+
+	//int uRadius = leftTopIndex / m_iCx < m_iBrushRadius ? leftTopIndex / m_iCx : m_iBrushRadius;
+	//int dRadius = (m_iCz - 1) - (leftBottomIndex / m_iCx);
+
+	//if (dRadius > m_iBrushRadius)
+	//{
+	//	dRadius = m_iBrushRadius;
+	//}
+
+	//int leftT = leftTopIndex - (uRadius * m_iCx + lRadius);
+	//int rightT = rightTopIndex - (uRadius * m_iCx - rRadius);
+	//int leftD = leftBottomIndex + (dRadius * m_iCx - lRadius);
+	//int rightD = rightBottomIndex + (dRadius * m_iCx + rRadius);
+
+	//int x = rightT - leftT;
+	//int z = (leftD - leftT) / m_iCx;
+
+	//for (int i = 0; i <= z; ++i)
+	//{
+
+	//	for (int j = 0; j <= x; ++j)
+	//	{
+	//		int index = leftT + (m_iCx * i + j);
+
+	//		D3DXVECTOR3 v0 = pVertices[index].point;
+	//		D3DXVECTOR3 v1 = m_vRecentPicked - v0;
+	//		float length = sqrt(v1.x * v1.x + v1.z * v1.z);
+
+	//		if (length < m_iBrushRadius * 0.75f)
+	//		{
+	//			m_vPickedIndex.push_back(index);
+	//		}
+	//	}
+
+	//}
 
 	for (size_t i = 0; i < m_vPickedIndex.size(); ++i)
 	{
@@ -817,6 +897,7 @@ void TerrainClass::ModifyYValue(D3DXVECTOR3 center)
 			pVertices[m_vPickedIndex[i]].point.y -= yValue * m_fStrength * 0.1f;
 	}
 
+//	m_pIB->Unlock();
 	m_pVB->Unlock();
 
 	ModifyPickedVertexNormal();
@@ -825,6 +906,12 @@ void TerrainClass::ModifyYValue(D3DXVECTOR3 center)
 void TerrainClass::SetDrawMode(DRAWMODE mode)
 {
 	m_eDrawMode = mode;
+}
+
+void TerrainClass::ModifyAllNormalVertex()
+{
+	void CalculatePolygonNormal();
+	void SetNormalVertex();
 }
 
 
@@ -934,6 +1021,8 @@ void TerrainClass::ModifyPickedVertexNormal()
 		sum /= size;
 		pVertices[index].normal = sum;
 	}
+
+	changedPolygonIndex.clear();
 
 	m_pVB->Unlock();
 

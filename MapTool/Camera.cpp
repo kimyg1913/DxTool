@@ -2,6 +2,8 @@
 #include "Camera.h"
 #include "Time.h"
 
+DEFINITION_SINGLE(Camera)
+
 Camera::Camera()
 {
 }
@@ -35,7 +37,7 @@ void Camera::Update(InputClass * input)
 	int mouseXpos, mouseYpos;
 
 	POINT	pt;
-	float	fDelta = Time::getInstance()->getTick();	// 마우스의 민감도, 이 값이 커질수록 많이 움직인다.
+	float	fDelta = GET_SINGLE(Time)->getTick();	// 마우스의 민감도, 이 값이 커질수록 많이 움직인다.
 
 	if (input->IsMouseRightClick() && input->GetMouseWindowPosition(mouseXpos,mouseYpos))
 	{
@@ -58,22 +60,32 @@ void Camera::Update(InputClass * input)
 
 	if (input->IsWPressed())
 	{
-		MoveLocalZ(fDelta*30);
+		MoveLocalZ(fDelta*100);
 	}
 
 	if (input->IsSPressed())
 	{
-		MoveLocalZ(-fDelta * 30);
+		MoveLocalZ(-fDelta * 100);
 	}
 
 	if (input->IsAPressed())
 	{
-		MoveLocalX(-fDelta * 30);
+		MoveLocalX(-fDelta * 100);
 	}
 
 	if (input->IsDPressed())
 	{
-		MoveLocalX(fDelta * 30);
+		MoveLocalX(fDelta * 100);
+	}
+
+	if (input->IsQPressed())
+	{
+		MoveLocalY(-fDelta * 10);
+	}
+
+	if (input->IsEPressed())
+	{
+		MoveLocalY(fDelta * 10);
 	}
 }
 

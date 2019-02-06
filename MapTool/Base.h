@@ -16,7 +16,6 @@
 #include <string>
 #include <math.h>
 #include <mmsystem.h>  //timegettime ÇÔ¼ö
-
 //#include "MyMath.h"
 
 #pragma comment (lib, "d3d9.lib")
@@ -50,6 +49,12 @@ enum DRAWMODE
 	DM_FALL
 };
 
+enum BRUSHOREROSION
+{
+	BE_BRUSH = 0,
+	BE_EROSION
+};
+
 using namespace std;
 
 namespace MyStruct
@@ -80,18 +85,29 @@ namespace MyStruct
 
 }
 
+#define DECLAER_SINGLE(Type) \
+		private: \
+			static Type * m_pInst; \
+		public: \
+			static Type * GetInst() { \
+				if(!m_pInst)\
+				{\
+					m_pInst = new Type();\
+				}\
+				return m_pInst;\
+			}\
+			static void DestroyInst() {\
+				if(m_pInst)\
+				{\
+					delete m_pInst;\
+					m_pInst = nullptr;\
+				}\
+			}\
+		private:\
+			Type();\
+			~Type();
 
-//namespace MyFuc
-//{
-//	float VectorLength(D3DXVECTOR3 t)
-//	{
-//		return sqrt(t.x * t.x + t.y * t.y + t.z * t.z);
-//	};
-//
-//	D3DXVECTOR3 VectorNormalize(D3DXVECTOR3 t)
-//	{
-//		float length = VectorLength(t);
-//
-//		return t / length;
-//	};
-//}
+#define DEFINITION_SINGLE(Type) Type* Type::m_pInst = nullptr;
+
+#define GET_SINGLE(Type) Type::GetInst()
+#define DESTROY_SINGLE(Type) Type::DestroyInst()

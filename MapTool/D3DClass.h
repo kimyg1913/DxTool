@@ -3,28 +3,29 @@
 
 class D3DClass
 {
+	DECLAER_SINGLE(D3DClass);
 public:
-	D3DClass();
-	D3DClass(const D3DClass &);
-	~D3DClass();
 
 	bool Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATRIX * matView, bool fullscreen = false);
 	HRESULT InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATRIX * matView);
 	bool InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, int xSize, int zSize, bool isLoadMap, LPCWSTR str);
-	bool LoadHeightMap(LPCWSTR fileName);
+
 
 	void Shutdown();
 
 	LPDIRECT3DDEVICE9	GetDevice() { return m_pd3dDevice; }
-	void RenderBegin(class Camera * pCamera, class FontClass * pFont);
+	void RenderBegin(class FontClass * pFont);
 	void RenderEnd();
 
 	void ToggleWireFrame();
-
 	void Picking();
 
 	void SetBrush(int radius, float strength);
 	void SetDrawMode(DRAWMODE mode);
+
+	D3DXMATRIX GetWorldMatrix() { return m_matWorld; }
+	D3DXMATRIX GetWorldProjection() { return m_matProjection; }
+	HWND	GetHWND() { return m_hWnd; }
 
 private:
 	void RenderScene(int r, int g, int b, int a);
@@ -41,7 +42,6 @@ private:
 	
 	HWND					m_hWnd;
 
-	class TerrainClass *	m_pTerrain;
 	class ColorShaderClass * m_pColorShader;
 
 	float mRotationY = 0.0f;

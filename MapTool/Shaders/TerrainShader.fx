@@ -59,7 +59,7 @@ PS_INPUT VsMain(VS_INPUT input)
 float4 PsMain(PS_INPUT input) : COLOR
 {
 	float3 lightColor = float3(1.0f, 1.0f, 1.0f);
-	float3 directionlightColor = float3(0.1f, 0.f, 0.f);
+	float3 directionlightColor = float3(0.f, 0.f, 0.f);
 	float4 	albedo = tex2D(DiffuseSampler, input.mTexCoord);
 
 	float3 diffuse = lightColor * albedo.rgb * saturate(input.mDiffuse);
@@ -74,12 +74,12 @@ float4 PsMain(PS_INPUT input) : COLOR
 		specular = saturate(dot(reflection, -viewDir));
 		specular = pow(specular, 2.0f);
 
-		specular = directionlightColor * specular;
+		specular = directionlightColor * specular * 0;
 	}
 
-	float3 ambient = float3(0.3f, 0.3f, 0.3f) * albedo.rgb;
+	float3 ambient = float3(0.2f, 0.2f, 0.2f) * albedo.rgb;
 	
-	return float4(ambient + diffuse + specular, 1);
+	return float4(ambient + diffuse, 1);
 }
 
 technique Terrain

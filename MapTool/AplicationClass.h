@@ -22,11 +22,20 @@ public:
 	void SetBrush(int radius, float strength);
 	void SetDrawMode(DRAWMODE mode);
 
+	void SetBrushOrErosion(BRUSHOREROSION brMode);
+
+	void SetRainRadius(float radius);
+	void SetRainAmount(float amount);
+
+	void ClearTerrain();
+
 private:
 	class   InputClass *	m_pInput;
 	class   Camera *		m_pCamera;
 	class	D3DClass *		m_pDirect3D;
 	class   FpsClass *		m_pFps;
 	class   FontClass *		m_pFont;
-	
+
+	BRUSHOREROSION	m_isBrushOrErosion;
+	D3DXVECTOR3		m_vPicked;
 };

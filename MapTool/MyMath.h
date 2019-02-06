@@ -14,12 +14,13 @@ D3DXVECTOR3 VectorNormalize(D3DXVECTOR3 t)
 {
 	float length = VectorLength(t);
 
-	return t/length;
+	return t / length;
 }
 
 void VectorNormalize(D3DXVECTOR3 * t)
 {
 	float length = VectorLength(*t);
 
-	 *t /= length;
+	*t /= length;
 }
+

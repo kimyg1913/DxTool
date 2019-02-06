@@ -3,10 +3,13 @@
 #include "ColorShaderClass.h"
 #include "Camera.h"
 #include "TerrainClass.h"
+#include "ErosionClass.h"
 #include "FontClass.h"
+#include "Time.h"
+
+DEFINITION_SINGLE(D3DClass)
 
 D3DClass::D3DClass() :
-	m_pTerrain(nullptr),
 	m_pColorShader(nullptr),
 	m_bNowWireFrame(false)
 {
@@ -23,12 +26,6 @@ D3DClass::~D3DClass()
 		m_pColorShader = nullptr;
 	}
 
-	if (m_pTerrain)
-	{
-		m_pTerrain->ShutDown();
-		delete m_pTerrain;
-		m_pTerrain = nullptr;
-	}
 }
 
 bool D3DClass::Initialize(HWND hwnd, int screenWidth, int screenHeight, D3DXMATRIX * matView, bool fullscreen)
@@ -80,14 +77,9 @@ HRESULT D3DClass::InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATR
 	}
 
 	D3DXMatrixIdentity(&m_matWorld);
-	//m_pd3dDevice->SetTransform(D3DTS_WORLD, &m_matWorld);
-	
 	m_matView = *matView;
 
-	//m_pd3dDevice->SetTransform(D3DTS_VIEW, &m_matView);
-
 	D3DXMatrixPerspectiveFovLH(&m_matProjection, FOV, ASPECT_RATIO, NEAR_PLANE, FAL_PLANE);
-	//m_pd3dDevice->SetTransform(D3DTS_PROJECTION, &m_matProjection);
 
 
 	return TRUE;
@@ -95,41 +87,12 @@ HRESULT D3DClass::InitD3D(HWND hWnd, int screenWidth, int screenHeight, D3DXMATR
 
 bool D3DClass::InitTerrain(LPDIRECT3DDEVICE9 pDevice, int xNumber, int zNumber, int xSize, int zSize, bool isLoadMap, LPCWSTR str)
 {
-	if (m_pTerrain)
+
+	/*if (m_pTerrain)
 	{
-		m_pTerrain->ShutDown();
-		delete m_pTerrain;
-		m_pTerrain = nullptr;
-	}
-
-	m_pTerrain = new TerrainClass;
-
-	if (!m_pTerrain->Initialize(m_pd3dDevice, xNumber, zNumber,xSize,zSize, isLoadMap, str))
-	{
-		m_pTerrain->ShutDown();
-		delete m_pTerrain;
-		m_pTerrain = nullptr;
-		return false;
-	}
-
-	return true;
-}
-
-bool D3DClass::LoadHeightMap(LPCWSTR fileName)
-{
-	if (m_pTerrain)
-	{
-		m_pTerrain->ShutDown();
-		delete m_pTerrain;
-		m_pTerrain = nullptr;
-	}
-
-	m_pTerrain = new TerrainClass;
-
-	if (m_pTerrain->LoadHeightMap(m_pd3dDevice,fileName))
-	{
-		return false;
-	}
+		m_pErosion = new ErosionClass;
+		m_pErosion->Init(xNumber, zNumber);
+	}*/
 
 	return true;
 }
@@ -140,13 +103,13 @@ void D3DClass::Shutdown()
 	m_pD3D->Release();
 }
 
-void D3DClass::RenderBegin(Camera * pCamera, FontClass * pFont)
+void D3DClass::RenderBegin(FontClass * pFont)
 {
 	m_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
 
 
-	m_matView = *pCamera->GetViewMatrix();
+	m_matView = *GET_SINGLE(Camera)->GetViewMatrix();
 
 	m_pd3dDevice->BeginScene();
 
@@ -154,8 +117,6 @@ void D3DClass::RenderBegin(Camera * pCamera, FontClass * pFont)
 
 	// 실제 렌더링 하는 부분
 	RenderScene(0, 0, 255, 255);
-	
-
 	
 	pFont->Update();
 
@@ -169,6 +130,11 @@ void D3DClass::RenderBegin(Camera * pCamera, FontClass * pFont)
 
 void D3DClass::RenderEnd()
 {
+//	if(m_pTerrain)
+	{ 
+	//	m_pErosion->Update(Time::getInstance()->getTick(), true, m_pTerrain->GetVertexBuffer());
+	//	m_pTerrain->SetNormalVertex();
+	}
 }
 
 void D3DClass::ToggleWireFrame()
@@ -184,37 +150,37 @@ void D3DClass::RenderScene(int r, int g, int b, int a)
 	else
 		m_pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
-	if(m_pTerrain)
-		m_pTerrain->Render(m_pd3dDevice, &m_matWorld, &m_matView, &m_matProjection);
+	if(GET_SINGLE(TerrainClass)->IsCreated())
+		GET_SINGLE(TerrainClass)->Render(m_pd3dDevice, &m_matWorld, &m_matView, &m_matProjection);
 	
 }
 
 void D3DClass::Picking()
 {
 
-	if (m_pTerrain)
-	{
-		if (m_pTerrain->Picking(m_pd3dDevice, m_hWnd, &m_matWorld, &m_matView, &m_matProjection))
-		{
-			//ToggleWireFrame();
-		}
-	}
+	//if (m_pTerrain)
+	//{
+	//	if (m_pTerrain->Picking(m_pd3dDevice, m_hWnd, &m_matWorld, &m_matView, &m_matProjection))
+	//	{
+	//		//ToggleWireFrame();
+	//	}
+	//}
 }
 
 void D3DClass::SetBrush(int radius, float strength)
 {
-	if (m_pTerrain)
+	/*if (m_pTerrain)
 	{
 		m_pTerrain->SetBrush(radius, strength);
-	}
+	}*/
 }
 
 void D3DClass::SetDrawMode(DRAWMODE mode)
 {
-	if (m_pTerrain)
-	{
-		m_pTerrain->SetDrawMode(mode);
-	}
+	//if (m_pTerrain)
+	//{
+	//	m_pTerrain->SetDrawMode(mode);
+	//}
 }
 
 

@@ -66,9 +66,6 @@
     <ClInclude Include="ColorShaderClass.h">
       <Filter>헤더 파일\DX</Filter>
     </ClInclude>
-    <ClInclude Include="ModelClass.h">
-      <Filter>헤더 파일\DX</Filter>
-    </ClInclude>
     <ClInclude Include="TerrainClass.h">
       <Filter>헤더 파일\DX</Filter>
     </ClInclude>
@@ -102,6 +99,12 @@
     <ClInclude Include="stdafx.h">
       <Filter>헤더 파일\MFC</Filter>
     </ClInclude>
+    <ClInclude Include="MyOperation.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ErosionClass.h">
+      <Filter>헤더 파일\DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AplicationClass.cpp">
@@ -129,9 +132,6 @@
       <Filter>소스 파일\DX</Filter>
     </ClCompile>
     <ClCompile Include="ColorShaderClass.cpp">
-      <Filter>소스 파일\DX</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelClass.cpp">
       <Filter>소스 파일\DX</Filter>
     </ClCompile>
     <ClCompile Include="TerrainClass.cpp">
@@ -163,6 +163,9 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일\MFC</Filter>
+    </ClCompile>
+    <ClCompile Include="ErosionClass.cpp">
+      <Filter>소스 파일\DX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

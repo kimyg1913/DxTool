@@ -6,14 +6,19 @@
 #include "FpsClass.h"
 #include "Time.h"
 #include "FontClass.h"
+#include "TerrainClass.h"
+#include "PerlinClass.h"
+#include "ErosionClass.h"
+
 #include <iostream>
 
 #pragma comment( linker, "/entry:WinMainCRTStartup /subsystem:console")
 
 
 ApplicationClass::ApplicationClass() :
-	m_pInput(nullptr), m_pCamera(nullptr),m_pDirect3D(nullptr), m_pFps(nullptr), m_pFont(nullptr)
+	m_pInput(nullptr), m_pCamera(nullptr),m_pDirect3D(nullptr), m_pFps(nullptr), m_pFont(nullptr), m_vPicked(987654321,987654321,987654321)
 {
+	
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass &other)
@@ -30,7 +35,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd[],	int screenWi
 
 	bool result;
 
-	m_pInput = new InputClass;
+	m_pInput = GET_SINGLE(InputClass);
 
 	result = m_pInput->initialze(hinstance, hwnd, screenWidth, screenWidth);
 
@@ -45,7 +50,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd[],	int screenWi
 	//fpsClass initialize
 	m_pFps->Initialize();
 
-	m_pCamera = Camera::GetInstance();
+	m_pCamera = GET_SINGLE(Camera);
 
 	result = m_pCamera->Initialize();
 	
@@ -55,7 +60,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd[],	int screenWi
 		return false;
 	}
 
-	m_pDirect3D = new D3DClass;
+	m_pDirect3D = GET_SINGLE(D3DClass);
 	
 	result = m_pDirect3D->Initialize(hwnd[0], screenWidth, screenHeight, m_pCamera->GetViewMatrix());
 
@@ -95,36 +100,26 @@ void ApplicationClass::Shutdown()
 		m_pFps = NULL;
 	}
 
-	if (m_pDirect3D)
-	{
-		m_pDirect3D->Shutdown();
-		delete m_pDirect3D;
-		m_pDirect3D = nullptr;
-	}
+	DESTROY_SINGLE(D3DClass);
+	m_pDirect3D = nullptr;
 
-	//if (m_pCamera)
-	//{
-	//	m_pCamera->ShutDown();
-	//	delete m_pCamera;
-	//	m_pCamera = nullptr;
-	//}
+	DESTROY_SINGLE(Camera);
+	m_pCamera = nullptr;
 
-	if (m_pInput)
-	{
-		m_pInput->Shutdown();
-		delete m_pInput;
-		m_pInput = nullptr;
-	}
+	DESTROY_SINGLE(InputClass);
+	m_pInput = nullptr;
 
+	DESTROY_SINGLE(Time);
+
+	DESTROY_SINGLE(ErosionClass);
+
+	DESTROY_SINGLE(TerrainClass);
 }
 
 bool ApplicationClass::Update()
 {
 
-	Time::getInstance()->update();
-
-
-	
+	GET_SINGLE(Time)->update();
 
 	bool result = true;
 
@@ -143,8 +138,6 @@ bool ApplicationClass::Update()
 	m_pFont->SetStr(str);
 	std::wcout << str << std::endl;
 
-
-	
 	if (m_pInput->Update())
 	{
 		m_pCamera->Update(m_pInput);
@@ -154,17 +147,28 @@ bool ApplicationClass::Update()
 
 		int temp, temp1;
 
-		if (m_pInput->IsMouseLeftClick() && m_pInput->GetMouseWindowPosition(temp, temp1))
+		if (GET_SINGLE(TerrainClass)->IsCreated())
 		{
-			m_pDirect3D->Picking();
+			GET_SINGLE(ErosionClass)->Update(GET_SINGLE(Time)->getTick() * 50, GET_SINGLE(TerrainClass)->GetVertexBuffer());
+			
+			if (m_pInput->GetMouseWindowPosition(temp, temp1))
+			{
+				if (GET_SINGLE(TerrainClass)->Picking(m_pDirect3D->GetDevice(), m_pDirect3D->GetHWND(), &m_pDirect3D->GetWorldMatrix(), m_pCamera->GetViewMatrix(), &m_pDirect3D->GetWorldProjection(), &m_vPicked, m_isBrushOrErosion))
+				{
+					if (m_pInput->IsMouseLeftClick() && m_isBrushOrErosion == BE_BRUSH)
+					{
+						GET_SINGLE(TerrainClass)->ModifyYValue(m_vPicked);
+					}
+					else if (m_pInput->IsMouseLeftClick() && m_isBrushOrErosion == BE_EROSION)
+					{
+						GET_SINGLE(ErosionClass)->AddRainDrop(m_vPicked);
+					}
+				}
+			}
 		}
 	}
 
-	
-
-	m_pDirect3D->RenderBegin(m_pCamera, m_pFont);
-
-	
+	m_pDirect3D->RenderBegin(m_pFont);
 
 	if (!result)
 		return false;
@@ -176,7 +180,10 @@ bool ApplicationClass::Update()
 
 bool ApplicationClass::InitTerrain(int xN, int zN, int xS, int zS, bool isLoadMap, LPCWSTR str)
 {
-	if(m_pDirect3D->InitTerrain(m_pDirect3D->GetDevice(), xN, zN, xS, zS, isLoadMap, str))
+	if (GET_SINGLE(TerrainClass)->IsCreated())
+		return true;
+
+	if(GET_SINGLE(TerrainClass)->Initialize(m_pDirect3D->GetDevice(), xN, zN, xS, zS, isLoadMap, str))
 		return true;
 
 	return false;
@@ -184,27 +191,46 @@ bool ApplicationClass::InitTerrain(int xN, int zN, int xS, int zS, bool isLoadMa
 
 bool ApplicationClass::LoadHeightMap(LPCWSTR str)
 {
-	if (m_pDirect3D->LoadHeightMap(str))
-	{
-		return true;
-	}
+	
 
 	return false;
 }
 
 void ApplicationClass::SetBrush(int radius, float strength)
 {
-	if (m_pDirect3D)
+	if (GET_SINGLE(TerrainClass)->IsCreated())
 	{
-		m_pDirect3D->SetBrush(radius, strength);
+		GET_SINGLE(TerrainClass)->SetBrush(radius, strength);
 	}
 }
 
 void ApplicationClass::SetDrawMode(DRAWMODE mode)
 {
-	if (m_pDirect3D)
+	if (GET_SINGLE(TerrainClass)->IsCreated())
 	{
-		m_pDirect3D->SetDrawMode(mode);
+		GET_SINGLE(TerrainClass)->SetDrawMode(mode);
 	}
+}
+
+void ApplicationClass::SetBrushOrErosion(BRUSHOREROSION brMode)
+{
+	m_isBrushOrErosion = brMode;
+}
+
+void ApplicationClass::SetRainRadius(float radius)
+{
+	if(GET_SINGLE(TerrainClass)->IsCreated())
+		GET_SINGLE(ErosionClass)->SetRainRadius(radius);
+}
+
+void ApplicationClass::SetRainAmount(float amount)
+{
+	if (GET_SINGLE(TerrainClass)->IsCreated())
+		GET_SINGLE(ErosionClass)->SetRainAmount(amount);
+}
+
+void ApplicationClass::ClearTerrain()
+{
+	DESTROY_SINGLE(TerrainClass);
 }
 

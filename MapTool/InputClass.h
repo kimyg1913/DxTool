@@ -7,9 +7,9 @@
 
 class InputClass
 {
+	DECLAER_SINGLE(InputClass);
+
 public:
-	InputClass();
-	~InputClass();
 
 	bool initialze(HINSTANCE, HWND[], int, int);
 	void Shutdown();
@@ -28,7 +28,10 @@ public:
 	bool IsAPressed();
 	bool IsSPressed();
 	bool IsDPressed();
+	bool IsQPressed();
+	bool IsEPressed();
 	bool IsNumber1Pressed();
+
 private:
 	bool ReadKeyboard();
 	bool ReadMouse();
@@ -44,6 +47,9 @@ private:
 
 	int m_screenWidth, m_screenHeight;
 	int m_mouseX, m_mouseY;
+
+	float m_tButton1;
+	float m_tPrevButton1;
 
 	HWND m_directXViewHwnd;
 };

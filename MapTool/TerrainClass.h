@@ -14,21 +14,28 @@ struct HeightMapType
 
 class TerrainClass
 {
+	DECLAER_SINGLE(TerrainClass);
 public:
-	TerrainClass();
-	~TerrainClass();
 
 	bool Initialize(LPDIRECT3DDEVICE9 device, int xNumber, int zNumber, int xSize, int zSize, bool isLoadMap, LPCWSTR str);
 	void ShutDown();
 
 	bool LoadHeightMap(LPDIRECT3DDEVICE9 device, LPCWSTR fileName);
-	bool Picking(LPDIRECT3DDEVICE9 devce, HWND hwnd, D3DXMATRIX * matWorld, D3DXMATRIX * matView, D3DXMATRIX * matProj);
+	bool Picking(LPDIRECT3DDEVICE9 devce, HWND hwnd, D3DXMATRIX * matWorld, D3DXMATRIX * matView, D3DXMATRIX * matProj, D3DXVECTOR3 * vPicked, BRUSHOREROSION eBEMODE);
 
 	bool Render(LPDIRECT3DDEVICE9 device, D3DXMATRIX * world, D3DXMATRIX * view, D3DXMATRIX * proj);
 	void SetBrush(int radius, float strength);
 
 	void ModifyYValue(D3DXVECTOR3 center);
 	void SetDrawMode(DRAWMODE mode);
+	void SetNormalVertex();
+
+	void ModifyAllNormalVertex();
+	bool IsCreated() { return m_isCreated; }
+
+	LPDIRECT3DVERTEXBUFFER9 GetVertexBuffer() { return m_pVB; }
+	int	GetRecentPickedIndex() { return m_iRecentIndex; }
+	vector<int> & GetVectorPickedIndex() { return m_vPickedIndex; }
 
 private:
 	bool InitVertex(LPDIRECT3DDEVICE9 device);
@@ -38,30 +45,33 @@ private:
 
 	void CalculatePolygonNormal();
 	void SetPolygonIndexAndNormal();
-	void SetNormalVertex();
+
 
 	void ModifyPickedVertexNormal();
 
 private:
+	bool		m_isCreated;
 	int			m_iCx;	// 가로픽셀수
 	int			m_iCz;	// 세로픽셀수
 	int			m_vertexCount;
 	int			m_indexCount;
 	int			m_iXIndexCount; // 가로줄의 폴리곤 갯수
 
-	int		m_iBrushRadius;
+	int			m_iBrushRadius;
 	float		m_fStrength;
 	float		m_fBaseStrength;
 
 	int			m_iHighestY;
 	int			m_iLowestY;
 
+	D3DXVECTOR3 m_vRecentPicked;
+	int			m_iRecentIndex;
+
 	DRAWMODE	m_eDrawMode;
 
 	vector<int> m_vPickedIndex;
-	vector<float> m_vPickedLength;
 	vector<D3DXVECTOR3> m_vPolygonNormal;
-	vector<vector<int>> m_vPolygonIndexPerVertex;
+	vector<vector<int> > m_vPolygonIndexPerVertex;
 
 	D3DXVECTOR3	m_vfScale; // x scale, y scale, z scale
 
@@ -71,7 +81,6 @@ private:
 	TERRAINVERTEX * m_pTerrainVertex;//높이맵의 정점배열
 	MYINDEX		*	m_pTerrainIndex;
 	HeightMapType* m_heightMap;
-	queue<float> m_heightY;
 
 	LPDIRECT3DVERTEXBUFFER9 m_pVB;
 	LPDIRECT3DINDEXBUFFER9	m_pIB;

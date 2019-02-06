@@ -1,24 +1,12 @@
 #pragma once
 #include <timeapi.h>
-
+#include "Base.h"
 
 class Time
 {
-public:
-	Time() {
-		_prevTime = timeGetTime();
-	}
-
-	static Time* getInstance()
-	{
-		static Time time;
-		return &time;
-	}
-
+	DECLAER_SINGLE(Time);
 
 public:
-
-
 	float getTick() { return _tick; }
 	float getFps() { return _fps; }
 
@@ -35,6 +23,8 @@ public:
 		else 
 		{
 			_fps = _accFps;
+			_accTime = 0.0f;
+			_accFps = 0;
 		}
 
 		_accTime += _tick;

@@ -101,6 +101,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>	Winmm.lib</AdditionalDependencies>
+      <StackReserveSize>
+      </StackReserveSize>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -193,6 +195,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColorShaderClass.h" />
     <ClInclude Include="D3DClass.h" />
+    <ClInclude Include="ErosionClass.h" />
     <ClInclude Include="FontClass.h" />
     <ClInclude Include="FpsClass.h" />
     <ClInclude Include="InputClass.h" />
@@ -202,8 +205,8 @@
     <ClInclude Include="MapToolDoc.h" />
     <ClInclude Include="MapToolView.h" />
     <ClInclude Include="MapView.h" />
-    <ClInclude Include="ModelClass.h" />
     <ClInclude Include="MyMath.h" />
+    <ClInclude Include="MyOperation.h" />
     <ClInclude Include="PerlinClass.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -220,6 +223,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="D3DClass.cpp" />
+    <ClCompile Include="ErosionClass.cpp" />
     <ClCompile Include="FontClass.cpp" />
     <ClCompile Include="FpsClass.cpp" />
     <ClCompile Include="InputClass.cpp" />
@@ -229,7 +233,6 @@
     <ClCompile Include="MapToolDoc.cpp" />
     <ClCompile Include="MapToolView.cpp" />
     <ClCompile Include="MapView.cpp" />
-    <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="PerlinClass.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
